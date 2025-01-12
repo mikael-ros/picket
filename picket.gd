@@ -38,7 +38,7 @@ extends TileMapLayer
 		set_properties()
 
 # ---------------
-# Private, local, properties
+# Local properties
 var fence_layer_horizontal : TileMapLayer 	## The tile map layer upon which the horizontal parts are displayed
 var fence_layer_vertical : TileMapLayer 	## The tile map layer upon which the horizontal parts are displayed
 											# note: a post layer is not needed, as that's the "self" layer.
@@ -61,9 +61,9 @@ func _exit_tree() -> void:
 	fence_layer_vertical.free()
 	
 func _ready() -> void:
-	set_process(Engine.is_editor_hint()) # Only use [method _process] in the engine
+	set_process(Engine.is_editor_hint()) # Only use [method _process] in the editor
 	if (Engine.is_editor_hint()):
-		changed.connect(set_properties)
+		changed.connect(set_properties)  # Only connect [method set_properties] if in the editor
 
 func _process(delta) -> void:
 	update_tiles() # Update tiles every tick. Not effecient, but cant find a better solution yet
