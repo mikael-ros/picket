@@ -4,7 +4,7 @@
 
 # 🏡 Picket
 
-A simple fence plugin for [Godot](https://godotengine.org/) 4.x. **Makes the building of fences easy, and dynamic.**
+A simple fence plugin for [Godot Engine](https://godotengine.org/) 4.x. **Makes the building of fences easy, and dynamic.**
 
 ![GIF of painting a P in Picket]()
 
@@ -75,7 +75,7 @@ You can adjust the position at which the fences intersect. This shifts the posit
 > Not yet implemented
 
 ### 🧩 Current limitations and feature suggestions
-Currently, tile shapes are not supported beyond *"Square"*
+Currently, tile shapes are not supported beyond *"Square"*. Non-uniform fences aren't supported yet either, so fences can only be straight.
 
 If you desire certain functionality within this plugin, or encounter a bug, feel free to [add an issue](https://github.com/mikael-ros/picket/issues/new) and I will get around to it when time allows - or you can contribute it yourself, see the [contribution guidelines](/CONTRIBUTING.md) 
 
