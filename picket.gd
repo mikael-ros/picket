@@ -78,7 +78,7 @@ func set_properties() -> void:
 	# todo: copy more properties over? maybe write a for-each? not sure. 
 	
 	# Adjust by anchor
-	position = Vector2(origin_x, origin_y) + Vector2(anchor_x * tile_set.tile_size.x, anchor_y * tile_set.tile_size.y)
+	position = Vector2(origin_x, origin_y) + Vector2((anchor_x + 0.5) * tile_set.tile_size.x, (anchor_y + 0.5) * tile_set.tile_size.y)
 	
 	# Set offset for fence layer
 	# This is simply the position + half a tile in the relevant direction
