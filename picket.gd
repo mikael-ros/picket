@@ -1,15 +1,12 @@
 @tool
 class_name Picket
-extends EditorPlugin
+extends TileMapLayer
 
 # -----------------------------
 # Properties used in the plugin
-@export_group("Painting")					# How the fence is painted, from which we interpret the rendered fence
-@export var mapping : TileMapLayer			## The tilemap upon which the fence is painted
-
-@export_group("Textures")					# Textures used by the plugin
-@export var fence_texture : Texture2D		## The texture for the fence itself
-@export var fence_post_texture : Texture2D	## The texture for the posts placed intermittently
+@export_group("Texture positions")			# Positions in the tilemap for the textures used by the plugin
+@export var fence_texture : int 	 = 0	## Position for the texture for the fence itself. Assumed to be first
+@export var fence_post_texture : int = 1	## Position for the texture for the posts placed intermittently
 
 @export_group("Positioning")				# Exported variables related to position of the fence
 @export_range(0,1, 0.1) var offset   = 0.0	## The offset
@@ -18,15 +15,39 @@ extends EditorPlugin
 @export_range(0,1, 0.1) var anchor_y = 0.5	## Anchor y position
 
 # ---------------
-# Interpreted properties
-var grid_size : int 						## The size of the grid, interpreted from fence_texture
+# Private, local, properties
+var fence_layer_horizontal : TileMapLayer 	## The tile map layer upon which the horizontal parts are displayed
+var fence_layer_vertical : TileMapLayer 	## The tile map layer upon which the horizontal parts are displayed
+											# note: a post layer is not needed, as that's the "self" layer.
+
 # -----------------------------
 
 func _enter_tree() -> void:
-	# Initialization of the plugin goes here.
-	pass
-
+	# Initialize fence
+	fence_layer_horizontal = TileMapLayer.new()
+	fence_layer_vertical = TileMapLayer.new()
+	
+	# Copy certain properties over
+	fence_layer_horizontal.tile_set = tile_set
+	fence_layer_vertical.tile_set = tile_set
+	# todo: copy more properties over? maybe write a for-each? not sure. 
+	
+	# Set offset for fence layer
+	# This is simply the position + half a tile in the relevant direction
+	fence_layer_horizontal.position.x = position.x + tile_set.tile_size.x / 2
+	fence_layer_vertical.position.y = position.y + tile_set.tile_size.y / 2
 
 func _exit_tree() -> void:
-	# Clean-up of the plugin goes here.
+	# todo: figure out what needs to be cleaned up
+	pass
+
+## Paints the fence upon the fence layer
+func draw_fence() -> void:
+	# read positions where anything is painted in tilemap
+	# node traversal is left to right
+	# for each tile painted:
+	# 	read adjacencies 
+	# 	for each adjacency:
+	#		read relative axis
+	#		paint in relative axis, if not painted
 	pass
