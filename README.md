@@ -20,12 +20,12 @@ This will be the easiest method, if you don't mind updating manually
 1. Download [the latest release](https://github.com/mikael-ros/picket/releases)
 2. Open or extract the ``.zip``
 3. Copy folder to the ``/addons/`` folder of your Godot project
-    > [!WARN]
+    > [!IMPORTANT]
     > Make sure to preserve parent directory. Path should be ``/addons/Picket``, or similar
 4. In the Godot Editor, click ``Project`` -> ``Project Settings`` -> ``Plugins`` -> Click the ``Enable`` tick next to the **Picket** plugin
 
 ### 🧠 Advanced, but flexible
-> [!WARN]
+> [!IMPORTANT]
 > I cannot guarantee the below working as expected, I have only recently began utilizing this methodology
 During development of this addon, I utilized a slightly advanced function within [git](https://git-scm.com/), [submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules). The benefit of this, I believe, is that you can simply ``git submodule update --remote`` to fetch upstream changes.
 1. In your project directory, ``git init``, if you do not already have a git repository
@@ -71,7 +71,7 @@ You can adjust the position at which the fences intersect. This shifts the posit
 > If you stil want to adjust the position manually, use the *"Origin"* positions. Any adjustment of the normal *"Position"* vector will be overwritten otherwise.
 
 #### 📍 Offset
-> [!WARN]
+> [!IMPORTANT]
 > Not yet implemented
 
 ### 🧩 Current limitations and feature suggestions
