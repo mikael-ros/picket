@@ -37,38 +37,30 @@ func _enter_tree() -> void:
 	fence_layer_horizontal.position.x = position.x + tile_set.tile_size.x / 2
 	fence_layer_vertical.position.y = position.y + tile_set.tile_size.y / 2
 	
-	# Connect changed signaling
-	# changed.connect(...)
-	# todo: make change signaling smart. only update necessary tiles
-	
+	# Add children, draw initial fence
 	add_child(fence_layer_horizontal)
 	add_child(fence_layer_vertical)
 	draw_fence()
 
 func _exit_tree() -> void:
-	# todo: figure out what needs to be cleaned up
-	pass
-	
-#func _process() -> void: 
-	
+	fence_layer_horizontal.free()
+	fence_layer_vertical.free()
 
-## Paints the fence upon the fence layer
+func set_cell(coords: Vector2i, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
+	super.set_cell(coords, source_id, atlas_coords, alternative_tile)
+	fence_neighbors(coords)
+
+## Paints the fence upon the fence layers, all at once
 func draw_fence() -> void:
-	# read positions where anything is painted in tilemap
-	# node traversal is left to right
-	# for each tile painted:
-	# 	read adjacencies 
-	# 	for each adjacency:
-	#		read relative axis
-	#		paint in relative axis, if not painted
-	var used = get_used_cells()
-	for cell in used:
-		var neighbors = get_surrounding_cells(cell)
+	var painted_cells = get_used_cells() # Save used cells for check
+	for cell in painted_cells:
+		fence_neighbors(cell)
 		
-		for neighbor in neighbors:
-			if (used.has(neighbor)):
-				if neighbor.y > cell.y: 
-					fence_layer_vertical.set_cell(Vector2(cell.x,cell.y), fence_texture_ID, Vector2i.ZERO, TileSetAtlasSource.TRANSFORM_TRANSPOSE + TileSetAtlasSource.TRANSFORM_FLIP_V)
-				elif neighbor.x > cell.x:
-					fence_layer_horizontal.set_cell(Vector2(cell.x,cell.y), fence_texture_ID, Vector2i.ZERO)
-		
+## Paint neighbors of a certain cell. More performant than [method draw_fence]
+func fence_neighbors(cell: Vector2i) -> void:
+	for neighbor in get_surrounding_cells(cell): # For every neighbor cell
+		if (get_used_cells().has(neighbor)):	 # If neighbor is painted (get_surrounding_cells includes every cell, so)
+			if neighbor.y > cell.y: 			 # If neigbor is above, paint above (and apply rotation)
+				fence_layer_vertical.set_cell(Vector2(cell.x,cell.y), fence_texture_ID, Vector2i.ZERO, TileSetAtlasSource.TRANSFORM_TRANSPOSE + TileSetAtlasSource.TRANSFORM_FLIP_V)
+			elif neighbor.x > cell.x:			 # If neighbor is beside, paint beside
+				fence_layer_horizontal.set_cell(Vector2(cell.x,cell.y), fence_texture_ID, Vector2i.ZERO)
