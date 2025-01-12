@@ -19,9 +19,10 @@ extends TileMapLayer
 var fence_layer_horizontal : TileMapLayer 	## The tile map layer upon which the horizontal parts are displayed
 var fence_layer_vertical : TileMapLayer 	## The tile map layer upon which the horizontal parts are displayed
 											# note: a post layer is not needed, as that's the "self" layer.
-
+var painted_cells : Array[Vector2i] 
+var added_cells : Array[Vector2i] 
+var removed_cells : Array[Vector2i] 
 # -----------------------------
-
 func _enter_tree() -> void:
 	# Initialize fence
 	fence_layer_horizontal = TileMapLayer.new()
@@ -40,27 +41,54 @@ func _enter_tree() -> void:
 	# Add children, draw initial fence
 	add_child(fence_layer_horizontal)
 	add_child(fence_layer_vertical)
-	draw_fence()
+	
+	update_tiles()
 
 func _exit_tree() -> void:
 	fence_layer_horizontal.free()
 	fence_layer_vertical.free()
+	
+func _ready() -> void:
+	set_process(Engine.is_editor_hint())
 
-func set_cell(coords: Vector2i, source_id: int = -1, atlas_coords: Vector2i = Vector2i(-1, -1), alternative_tile: int = 0):
-	super.set_cell(coords, source_id, atlas_coords, alternative_tile)
-	fence_neighbors(coords)
-
-## Paints the fence upon the fence layers, all at once
-func draw_fence() -> void:
-	var painted_cells = get_used_cells() # Save used cells for check
+func _process(delta) -> void:
+	update_tiles()
+	
+## Update all tiles, based on differences
+func update_tiles() -> void:
+	var prev_painted_cells = painted_cells
+	painted_cells = get_used_cells() 
+			
+	for cell in prev_painted_cells:
+		if (not cell in painted_cells):
+			remove_fence_neighbors(cell)
+			
 	for cell in painted_cells:
-		fence_neighbors(cell)
-		
+		if (not cell in prev_painted_cells):
+			draw_fence_neighbors(cell)
+	
 ## Paint neighbors of a certain cell. More performant than [method draw_fence]
-func fence_neighbors(cell: Vector2i) -> void:
-	for neighbor in get_surrounding_cells(cell): # For every neighbor cell
-		if (get_used_cells().has(neighbor)):	 # If neighbor is painted (get_surrounding_cells includes every cell, so)
-			if neighbor.y > cell.y: 			 # If neigbor is above, paint above (and apply rotation)
-				fence_layer_vertical.set_cell(Vector2(cell.x,cell.y), fence_texture_ID, Vector2i.ZERO, TileSetAtlasSource.TRANSFORM_TRANSPOSE + TileSetAtlasSource.TRANSFORM_FLIP_V)
-			elif neighbor.x > cell.x:			 # If neighbor is beside, paint beside
-				fence_layer_horizontal.set_cell(Vector2(cell.x,cell.y), fence_texture_ID, Vector2i.ZERO)
+func draw_fence_neighbors(cell: Vector2i) -> void:
+	for neighbor in get_surrounding_cells(cell): 	# For every neighbor cell
+		if painted_cells.has(neighbor):	 			# If neighbor is painted (get_surrounding_cells includes every cell, so)
+			set_fence_cell(cell, neighbor)
+
+## Paint connections between cells
+func set_fence_cell(cell: Vector2i, neighbor: Vector2i) -> void:
+	var pos = cell
+	if neighbor.x == cell.x: 	# If neighbor is on vertical axis
+		if neighbor.y < cell.y: # If neighbor is below
+			pos.y -= 1
+		fence_layer_vertical.set_cell(pos, fence_texture_ID, Vector2i.ZERO, TileSetAtlasSource.TRANSFORM_TRANSPOSE + TileSetAtlasSource.TRANSFORM_FLIP_V)
+	elif neighbor.y == cell.y:	# If neighbor is on horizontal axis
+		if neighbor.x < cell.x: # If neighbor is to the left
+			pos.x -= 1
+		fence_layer_horizontal.set_cell(pos, fence_texture_ID, Vector2i.ZERO)
+
+## Remove neighbors of a certain cell.
+func remove_fence_neighbors(cell: Vector2i) -> void:
+	for neighbor in get_surrounding_cells(cell): # Remove cells in every direction
+		fence_layer_horizontal.erase_cell(cell)							# Cell to the right
+		fence_layer_horizontal.erase_cell(Vector2(cell.x - 1, cell.y))	# Cell to the left
+		fence_layer_vertical.erase_cell(cell)							# Cell above
+		fence_layer_vertical.erase_cell(Vector2(cell.x, cell.y - 1))	# Cell below
