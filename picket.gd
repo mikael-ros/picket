@@ -15,11 +15,10 @@ extends TileMapLayer
 		redraw()
 
 @export_group("Positioning")				# Exported variables related to position of the fence
-@export_range(0,1, 0.1) var offset = 0.0:	## The offset
+@export_range(0,1, 0.01) var offset = 0.0:	## The offset
 	set(new_offset): 
 		offset = new_offset
-		set_properties()
-		redraw()
+		set_properties(true)
 @export var origin_x : float = 0.0:			## Custom x origin position
 	set(new_x): 
 		origin_x = new_x
@@ -43,11 +42,16 @@ extends TileMapLayer
 var fence_layer_horizontal : TileMapLayer 	## Layer upon which the horizontal parts are displayed
 var fence_layer_vertical : TileMapLayer 	## Layer upon which the horizontal parts are displayed
 
+var post_layer_horizontal : TileMapLayer
+var post_layer_vertical : TileMapLayer
+var post_layer_stationary : TileMapLayer
+
 var painted_cells : Array[Vector2i] 		## Used for tracking what cells were painted last revision
 
 enum Axis {
 	HORIZONTAL,
-	VERTICAL
+	VERTICAL,
+	BOTH_OR_NEITHER
 }
 	
 
@@ -56,13 +60,17 @@ func _enter_tree() -> void:
 	# Initialize fence
 	fence_layer_horizontal = TileMapLayer.new()
 	fence_layer_vertical = TileMapLayer.new()
-	set_properties()
-	
+	post_layer_horizontal = TileMapLayer.new()
+	post_layer_vertical = TileMapLayer.new()
+	post_layer_stationary = TileMapLayer.new()
 	# Add children, draw initial fence
 	add_child(fence_layer_horizontal)
 	add_child(fence_layer_vertical)
+	add_child(post_layer_horizontal)
+	add_child(post_layer_vertical)
+	add_child(post_layer_stationary)
 	
-	update_tiles() # Update tiles first time
+	set_properties(true)
 
 func _exit_tree() -> void:
 	fence_layer_horizontal.free()
@@ -77,15 +85,18 @@ func _process(delta) -> void:
 	update_tiles() # Update tiles every tick. Not effecient, but cant find a better solution yet
 
 ## Propagate properties over
-func set_properties() -> void:
+func set_properties(redraw: bool = false) -> void:
 	# Make sure fence layers are under posts
 	fence_layer_horizontal.show_behind_parent = true
 	fence_layer_vertical.show_behind_parent = true
 	
 	# Copy certain properties over
-	if fence_layer_horizontal.tile_set != tile_set or fence_layer_vertical.tile_set != tile_set:
+	if redraw:
 		fence_layer_horizontal.tile_set = tile_set
 		fence_layer_vertical.tile_set = tile_set
+		post_layer_horizontal.tile_set = tile_set
+		post_layer_vertical.tile_set = tile_set
+		post_layer_stationary.tile_set = tile_set
 		redraw()
 	# todo: copy more properties over? maybe write a for-each? not sure. 
 	
@@ -96,6 +107,12 @@ func set_properties() -> void:
 	# This is simply the position + half a tile in the relevant direction
 	fence_layer_horizontal.position.x = tile_set.tile_size.x / 2
 	fence_layer_vertical.position.y = tile_set.tile_size.y / 2
+	
+	# Set offset for post layer
+	post_layer_horizontal.position.x = offset * tile_set.tile_size.x
+	post_layer_vertical.position.y = offset * tile_set.tile_size.y
+	
+	self.self_modulate.a = 0.0
 	
 ## Redraws all tiles. Used for texture changes
 func redraw() -> void:
@@ -111,6 +128,7 @@ func update_tiles() -> void:
 	for cell in prev_painted_cells:
 		if (not cell in painted_cells):
 			clear_fence_neighbors(cell)
+			clear_post_cell(cell)
 			
 	# Find and draw new fences
 	for cell in painted_cells:
@@ -130,14 +148,14 @@ func draw_fence_neighbors(cell: Vector2i) -> void:
 			else:
 				axis_neighbors.y += 1
 	
-	print(axis_neighbors)
-	if axis_neighbors != Vector2i.ZERO:
-		if axis_neighbors.x == 2 and axis_neighbors.y == 0:
-			print("offset horizontally")
-			offset_post(cell, Axis.HORIZONTAL)
-		elif axis_neighbors.x == 0 and axis_neighbors.y == 2:
-			print("offset vertically")
-			offset_post(cell, Axis.VERTICAL)
+	var axis = Axis.BOTH_OR_NEITHER
+	if axis_neighbors == Vector2i(0,2):
+		axis = Axis.HORIZONTAL
+	elif axis_neighbors == Vector2i(2,0):
+		axis = Axis.VERTICAL
+		
+	set_post_cell(cell, axis)
+		
 
 ## Paint connections between cells
 func set_fence_cell(cell: Vector2i, neighbor: Vector2i) -> void:
@@ -159,13 +177,21 @@ func clear_fence_neighbors(cell: Vector2i) -> void:
 		fence_layer_vertical.erase_cell(cell)							# Cell above
 		fence_layer_vertical.erase_cell(Vector2(cell.x, cell.y - 1))	# Cell below
 		
-##
-func offset_post(cell: Vector2i, axis: Axis) -> void:
-	var offset_vector = Vector2i.ZERO
+## Paints posts in intermediary layers
+func set_post_cell(cell: Vector2i, axis: Axis) -> void:
 	match axis:
-		HORIZONTAL:
-			offset_vector.x = offset * tile_set.tile_size.x 
-		VERTICAL: 
-			offset_vector.y = offset * tile_set.tile_size.y
-			
-	get_cell_tile_data(cell).texture_origin = offset_vector
+		Axis.HORIZONTAL:
+			if offset > 0:
+				post_layer_horizontal.set_cell(Vector2(cell.x - 1, cell.y), fence_post_texture_ID, Vector2i.ZERO)
+			post_layer_horizontal.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
+		Axis.VERTICAL:
+			if offset > 0:
+				post_layer_vertical.set_cell(Vector2(cell.x, cell.y - 1), fence_post_texture_ID, Vector2i.ZERO)
+			post_layer_vertical.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
+		Axis.BOTH_OR_NEITHER:
+			post_layer_stationary.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
+
+func clear_post_cell(cell: Vector2i) -> void:
+	post_layer_horizontal.erase_cell(cell)
+	post_layer_vertical.erase_cell(cell)
+	post_layer_stationary.erase_cell(cell)
