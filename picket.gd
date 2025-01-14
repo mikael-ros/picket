@@ -54,7 +54,7 @@ enum Axis {
 	BOTH_OR_NEITHER
 }
 	
-
+var inited = false
 # -----------------------------
 func _enter_tree() -> void:
 	# Initialize fence
@@ -63,6 +63,8 @@ func _enter_tree() -> void:
 	post_layer_horizontal = TileMapLayer.new()
 	post_layer_vertical = TileMapLayer.new()
 	post_layer_stationary = TileMapLayer.new()
+	inited = true
+	
 	# Add children, draw initial fence
 	add_child(fence_layer_horizontal)
 	add_child(fence_layer_vertical)
@@ -86,33 +88,31 @@ func _process(delta) -> void:
 
 ## Propagate properties over
 func set_properties(redraw: bool = false) -> void:
-	# Make sure fence layers are under posts
-	fence_layer_horizontal.show_behind_parent = true
-	fence_layer_vertical.show_behind_parent = true
-	
-	# Copy certain properties over
-	if redraw:
-		fence_layer_horizontal.tile_set = tile_set
-		fence_layer_vertical.tile_set = tile_set
-		post_layer_horizontal.tile_set = tile_set
-		post_layer_vertical.tile_set = tile_set
-		post_layer_stationary.tile_set = tile_set
-		redraw()
-	# todo: copy more properties over? maybe write a for-each? not sure. 
-	
-	# Adjust by anchor
-	position = Vector2(origin_x, origin_y) + Vector2((anchor_x + 0.5) * tile_set.tile_size.x, (anchor_y + 0.5) * tile_set.tile_size.y)
-	
-	# Set offset for fence layer
-	# This is simply the position + half a tile in the relevant direction
-	fence_layer_horizontal.position.x = tile_set.tile_size.x / 2
-	fence_layer_vertical.position.y = tile_set.tile_size.y / 2
-	
-	# Set offset for post layer
-	post_layer_horizontal.position.x = offset * tile_set.tile_size.x
-	post_layer_vertical.position.y = offset * tile_set.tile_size.y
-	
-	self.self_modulate.a = 0.0
+	if inited:
+		
+		# Copy certain properties over
+		if redraw:
+			fence_layer_horizontal.tile_set = tile_set
+			fence_layer_vertical.tile_set = tile_set
+			post_layer_horizontal.tile_set = tile_set
+			post_layer_vertical.tile_set = tile_set
+			post_layer_stationary.tile_set = tile_set
+			redraw()
+		# todo: copy more properties over? maybe write a for-each? not sure. 
+		
+		# Adjust by anchor
+		position = Vector2(origin_x, origin_y) + Vector2((anchor_x + 0.5) * tile_set.tile_size.x, (anchor_y + 0.5) * tile_set.tile_size.y)
+		
+		# Set offset for fence layer
+		# This is simply the position + half a tile in the relevant direction
+		fence_layer_horizontal.position.x = tile_set.tile_size.x / 2
+		fence_layer_vertical.position.y = tile_set.tile_size.y / 2
+		
+		# Set offset for post layer
+		post_layer_horizontal.position.x = offset * tile_set.tile_size.x
+		post_layer_vertical.position.y = offset * tile_set.tile_size.y
+		
+		self.self_modulate.a = 0.0
 	
 ## Redraws all tiles. Used for texture changes
 func redraw() -> void:
@@ -191,6 +191,7 @@ func set_post_cell(cell: Vector2i, axis: Axis) -> void:
 		Axis.BOTH_OR_NEITHER:
 			post_layer_stationary.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 
+## Remove fence posts in a certain cell
 func clear_post_cell(cell: Vector2i) -> void:
 	post_layer_horizontal.erase_cell(cell)
 	post_layer_vertical.erase_cell(cell)
