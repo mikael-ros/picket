@@ -19,6 +19,7 @@ extends TileMapLayer
 	set(new_offset): 
 		offset = new_offset
 		set_properties()
+		redraw()
 @export var origin_x : float = 0.0:			## Custom x origin position
 	set(new_x): 
 		origin_x = new_x
@@ -39,10 +40,17 @@ extends TileMapLayer
 
 # ---------------
 # Local properties
-var fence_layer_horizontal : TileMapLayer 	## The tile map layer upon which the horizontal parts are displayed
-var fence_layer_vertical : TileMapLayer 	## The tile map layer upon which the horizontal parts are displayed
-											# note: a post layer is not needed, as that's the "self" layer.
+var fence_layer_horizontal : TileMapLayer 	## Layer upon which the horizontal parts are displayed
+var fence_layer_vertical : TileMapLayer 	## Layer upon which the horizontal parts are displayed
+
 var painted_cells : Array[Vector2i] 		## Used for tracking what cells were painted last revision
+
+enum Axis {
+	HORIZONTAL,
+	VERTICAL
+}
+	
+
 # -----------------------------
 func _enter_tree() -> void:
 	# Initialize fence
@@ -70,6 +78,10 @@ func _process(delta) -> void:
 
 ## Propagate properties over
 func set_properties() -> void:
+	# Make sure fence layers are under posts
+	fence_layer_horizontal.show_behind_parent = true
+	fence_layer_vertical.show_behind_parent = true
+	
 	# Copy certain properties over
 	if fence_layer_horizontal.tile_set != tile_set or fence_layer_vertical.tile_set != tile_set:
 		fence_layer_horizontal.tile_set = tile_set
@@ -104,12 +116,28 @@ func update_tiles() -> void:
 	for cell in painted_cells:
 		if (not cell in prev_painted_cells):
 			draw_fence_neighbors(cell)
+			
+
 	
 ## Paint neighbors of a certain cell. More performant than [method draw_fence]
 func draw_fence_neighbors(cell: Vector2i) -> void:
+	var axis_neighbors = Vector2i.ZERO
 	for neighbor in get_surrounding_cells(cell): 	# For every neighbor cell
 		if painted_cells.has(neighbor):	 			# If neighbor is painted (get_surrounding_cells includes every cell, so)
 			set_fence_cell(cell, neighbor)
+			if (neighbor.x == cell.x):
+				axis_neighbors.x += 1
+			else:
+				axis_neighbors.y += 1
+	
+	print(axis_neighbors)
+	if axis_neighbors != Vector2i.ZERO:
+		if axis_neighbors.x == 2 and axis_neighbors.y == 0:
+			print("offset horizontally")
+			offset_post(cell, Axis.HORIZONTAL)
+		elif axis_neighbors.x == 0 and axis_neighbors.y == 2:
+			print("offset vertically")
+			offset_post(cell, Axis.VERTICAL)
 
 ## Paint connections between cells
 func set_fence_cell(cell: Vector2i, neighbor: Vector2i) -> void:
@@ -130,3 +158,14 @@ func clear_fence_neighbors(cell: Vector2i) -> void:
 		fence_layer_horizontal.erase_cell(Vector2(cell.x - 1, cell.y))	# Cell to the left
 		fence_layer_vertical.erase_cell(cell)							# Cell above
 		fence_layer_vertical.erase_cell(Vector2(cell.x, cell.y - 1))	# Cell below
+		
+##
+func offset_post(cell: Vector2i, axis: Axis) -> void:
+	var offset_vector = Vector2i.ZERO
+	match axis:
+		HORIZONTAL:
+			offset_vector.x = offset * tile_set.tile_size.x 
+		VERTICAL: 
+			offset_vector.y = offset * tile_set.tile_size.y
+			
+	get_cell_tile_data(cell).texture_origin = offset_vector
