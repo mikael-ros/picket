@@ -51,7 +51,8 @@ var painted_cells : Array[Vector2i] 		## Used for tracking what cells were paint
 enum Axis {
 	HORIZONTAL,
 	VERTICAL,
-	BOTH_OR_NEITHER
+	BOTH,
+	NEITHER
 }
 	
 var inited = false
@@ -129,32 +130,57 @@ func update_tiles() -> void:
 		if (not cell in painted_cells):
 			clear_fence_neighbors(cell)
 			clear_post_cell(cell)
+			update_post_neighbors(cell)
 			
 	# Find and draw new fences
 	for cell in painted_cells:
 		if (not cell in prev_painted_cells):
 			draw_fence_neighbors(cell)
+			draw_post_neighbors(cell)
+			update_post_neighbors(cell)
 			
 
-	
-## Paint neighbors of a certain cell. More performant than [method draw_fence]
-func draw_fence_neighbors(cell: Vector2i) -> void:
+
+func count_neighbors(cell: Vector2i) -> Vector2i:
 	var axis_neighbors = Vector2i.ZERO
 	for neighbor in get_surrounding_cells(cell): 	# For every neighbor cell
 		if painted_cells.has(neighbor):	 			# If neighbor is painted (get_surrounding_cells includes every cell, so)
-			set_fence_cell(cell, neighbor)
 			if (neighbor.x == cell.x):
 				axis_neighbors.x += 1
 			else:
 				axis_neighbors.y += 1
+	return axis_neighbors
 	
-	var axis = Axis.BOTH_OR_NEITHER
-	if axis_neighbors == Vector2i(0,2):
-		axis = Axis.HORIZONTAL
-	elif axis_neighbors == Vector2i(2,0):
-		axis = Axis.VERTICAL
-		
+func determine_axis(axis_neighbors: Vector2i) -> Axis:
+	match axis_neighbors:
+		Vector2i(0,2):
+			return Axis.HORIZONTAL
+		Vector2i(2,0):
+			return Axis.VERTICAL
+		Vector2i(0,0):
+			return Axis.NEITHER
+		_:
+			return Axis.BOTH
+
+## Paints fence posts around and within a certain cell
+func draw_post_neighbors(cell: Vector2i) -> void:
+	var axis_neighbors = count_neighbors(cell)
+	var axis = determine_axis(axis_neighbors)
 	set_post_cell(cell, axis)
+					
+func update_post_neighbors(cell: Vector2i) -> void:
+	var all_neighbors = [Vector2i(cell.x-1,cell.y+1), Vector2i(cell.x-1,cell.y-1), Vector2i(cell.x+1,cell.y+1), Vector2i(cell.x+1,cell.y-1)]
+	all_neighbors.append_array(get_surrounding_cells(cell))
+	for neighbor in all_neighbors:
+		if painted_cells.has(neighbor):
+			clear_post_cell(neighbor)
+			draw_post_neighbors(neighbor)
+				
+## Paint neighbors of a certain cell. More performant than [method draw_fence]
+func draw_fence_neighbors(cell: Vector2i) -> void:
+	for neighbor in get_surrounding_cells(cell): 	# For every neighbor cell
+		if painted_cells.has(neighbor):	 			# If neighbor is painted (get_surrounding_cells includes every cell, so)
+			set_fence_cell(cell, neighbor)
 		
 
 ## Paint connections between cells
@@ -188,7 +214,7 @@ func set_post_cell(cell: Vector2i, axis: Axis) -> void:
 			if offset > 0:
 				post_layer_vertical.set_cell(Vector2(cell.x, cell.y - 1), fence_post_texture_ID, Vector2i.ZERO)
 			post_layer_vertical.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
-		Axis.BOTH_OR_NEITHER:
+		Axis.NEITHER, Axis.BOTH:
 			post_layer_stationary.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 
 ## Remove fence posts in a certain cell
