@@ -71,7 +71,15 @@ You can adjust the position at which the fences intersect. This shifts the posit
 > If you stil want to adjust the position manually, use the *"Origin"* positions. Any adjustment of the normal *"Position"* vector will be overwritten otherwise.
 
 #### 📍 Offset
-> [!CAUTION]
+You can adjust where in the tile the posts are placed. The addon will dynamically fill in posts where absent, so spacing is consistent.
+
+#### 📏 Spacing
+You can adjust the spacing by which posts are placed. 
+
+> [!NOTE]
+> You can not affect the position by intersections, these are locked for realism reasons.
+
+> [!WARN]
 > Not yet implemented
 
 ### 🧩 Current limitations and feature suggestions
