@@ -146,9 +146,13 @@ func get_drawn_neighbors(cell: Vector2i) -> Array[Vector2i]:
 
 ## Retrieve all direct neighbors, in addition to diagonal ones
 func get_all_drawn_neighbors(cell: Vector2i) -> Array[Vector2i]:
-	var all_neighbors : Array[Vector2i] = [Vector2i(cell.x-1,cell.y+1), Vector2i(cell.x-1,cell.y-1), Vector2i(cell.x+1,cell.y+1), Vector2i(cell.x+1,cell.y-1)]
-	all_neighbors.append_array(get_surrounding_cells(cell))
-	return all_neighbors.filter(is_painted)
+	# Start with diagonal neighbors
+	var all_neighbors : Array[Vector2i] = 	[cell + Vector2i.LEFT + Vector2i.DOWN, 
+											 cell + Vector2i.LEFT + Vector2i.UP, 
+											 cell + Vector2i.RIGHT + Vector2i.DOWN, 
+											 cell + Vector2i.RIGHT + Vector2i.UP] 
+	all_neighbors.append_array(get_surrounding_cells(cell)) # Add direct neighbors
+	return all_neighbors.filter(is_painted) # Filter
 
 ## Counts the amount of drawn neighbors in either direction
 func count_neighbors(cell: Vector2i) -> Vector2i:
@@ -163,67 +167,75 @@ func count_neighbors(cell: Vector2i) -> Vector2i:
 ## Determines if cell is in a chain of strictly vertical or horizontal cells, or indeterminate
 func determine_axis(cell: Vector2i) -> Axis:
 	match count_neighbors(cell):
-		Vector2i(2,0):
+		Vector2i(2,0): # If there are neighbors to the left of, and to the right of
 			return Axis.HORIZONTAL
-		Vector2i(0,2):
+		Vector2i(0,2): # If there are neigbors above and below
 			return Axis.VERTICAL
-		_:
+		_:			   # Otherwise, treat the same as static post
 			return Axis.BOTH_OR_NEITHER
-			
+
+## Get cell to the left of cell			
 func left_of(cell: Vector2i) -> Vector2i:
 	return cell + Vector2i.LEFT
-
+	
+## Get cell to the right of cell	
 func right_of(cell: Vector2i) -> Vector2i:
 	return cell + Vector2i.RIGHT
 	
+## Get cell above cell		
 func above(cell: Vector2i) -> Vector2i:
 	return cell + Vector2i.UP
 	
+## Get cell below cell		
 func below(cell: Vector2i) -> Vector2i:
 	return cell + Vector2i.DOWN
 
 ## Paints fence posts around and within a certain cell
-func draw_post_neighbors(cell: Vector2i, new: bool = false) -> void:
+func draw_post_neighbors(cell: Vector2i, should_update_neigbors: bool = false) -> void:
 	match determine_axis(cell):
 		Axis.HORIZONTAL:
 			if offset > 0:
-				post_layer_horizontal.set_cell(Vector2(cell.x - 1, cell.y), fence_post_texture_ID, Vector2i.ZERO)
+				post_layer_horizontal.set_cell(left_of(cell), fence_post_texture_ID, Vector2i.ZERO)
 			post_layer_horizontal.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 		Axis.VERTICAL:
 			if offset > 0:
-				post_layer_vertical.set_cell(Vector2(cell.x, cell.y - 1), fence_post_texture_ID, Vector2i.ZERO)
+				post_layer_vertical.set_cell(above(cell), fence_post_texture_ID, Vector2i.ZERO)
 			post_layer_vertical.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 		Axis.BOTH_OR_NEITHER:
 			post_layer_stationary.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
-	if new:
+	if should_update_neigbors: # If this cell is newly painted, trigger update for neighbors
 		update_post_neighbors(cell)
 
 ## Remove fence posts in a certain cell
-func clear_post_cell(cell: Vector2i, new: bool = false) -> void:
+func clear_post_cell(cell: Vector2i, should_update_neigbors: bool = false) -> void:
 	if post_layer_stationary.get_used_cells().has(cell):
 		post_layer_stationary.erase_cell(cell)
 	else:
 		var right = right_of(cell)
-		if not is_painted(right) or determine_axis(right) != Axis.HORIZONTAL:
-			post_layer_horizontal.erase_cell(cell)
 		var below = below(cell)
-		if not is_painted(below) or determine_axis(below) != Axis.VERTICAL:
+		# If post on the right doesn't exist, or if there is no conflict
+		if not is_painted(right) or determine_axis(right) != Axis.HORIZONTAL: 
+			post_layer_horizontal.erase_cell(cell) # Erase horizontal part
+		# Same, for below
+		if not is_painted(below) or determine_axis(below) != Axis.VERTICAL: 
 			post_layer_vertical.erase_cell(cell)
+		# Erase any offset copies	
 		if offset > 0:
 			var left = left_of(cell)
+			var above = above(cell)
+			# Same logic as for the previous erasures
 			if not is_painted(left) or determine_axis(left) != Axis.HORIZONTAL:
 				post_layer_horizontal.erase_cell(left)
-			var above = above(cell)
 			if not is_painted(above) or determine_axis(above) != Axis.VERTICAL:
 				post_layer_vertical.erase_cell(above)
-	if new: # Trigger update of neighbors if necessary
+	if should_update_neigbors: # If this cell is newly cleared, trigger update for neighbors
 		update_post_neighbors(cell)
 
 ## Update neighbors surrounding a post, in case posts can no longer be movable				
 func update_post_neighbors(cell: Vector2i) -> void:
-	for neighbor in get_all_drawn_neighbors(cell):
-		clear_post_cell(neighbor)
-		draw_post_neighbors(neighbor)
+	for neighbor in get_all_drawn_neighbors(cell): 	# For every neighbor (including diagonals)
+		clear_post_cell(neighbor)					# Clear current drawn posts
+		draw_post_neighbors(neighbor)				# Redraw posts again
 				
 ## Paint neighbors of a certain cell. More performant than [method draw_fence]
 func draw_fence_neighbors(cell: Vector2i) -> void:
@@ -231,17 +243,17 @@ func draw_fence_neighbors(cell: Vector2i) -> void:
 		var pos = cell
 		if neighbor.x == cell.x: 	# If neighbor is on vertical axis
 			if neighbor.y < cell.y: # If neighbor is below
-				pos.y -= 1
+				pos = above(cell)
 			fence_layer_vertical.set_cell(pos, fence_texture_ID, Vector2i.ZERO, TileSetAtlasSource.TRANSFORM_TRANSPOSE + TileSetAtlasSource.TRANSFORM_FLIP_V)
 		elif neighbor.y == cell.y:	# If neighbor is on horizontal axis
 			if neighbor.x < cell.x: # If neighbor is to the left
-				pos.x -= 1
+				pos = left_of(cell)
 			fence_layer_horizontal.set_cell(pos, fence_texture_ID, Vector2i.ZERO)
 
 ## Remove neighbors of a certain cell.
 func clear_fence_neighbors(cell: Vector2i) -> void:
-	fence_layer_horizontal.erase_cell(cell)							# Cell to the right
-	fence_layer_horizontal.erase_cell(Vector2(cell.x - 1, cell.y))	# Cell to the left
-	fence_layer_vertical.erase_cell(cell)							# Cell above
-	fence_layer_vertical.erase_cell(Vector2(cell.x, cell.y - 1))	# Cell below
+	fence_layer_horizontal.erase_cell(cell)				# Cell to the right
+	fence_layer_horizontal.erase_cell(left_of(cell))	# Cell to the left
+	fence_layer_vertical.erase_cell(cell)				# Cell above
+	fence_layer_vertical.erase_cell(above(cell))		# Cell below
 	
