@@ -121,7 +121,7 @@ func _process(delta) -> void:
 ## Propagate properties over to children
 func set_properties(redraw: bool = false) -> void:
 	# Only execute the following when [Picket] has not been initialized
-	if not initialized: 
+	if initialized: 
 		# Copy certain properties over
 		if redraw:
 			fence_layer_horizontal.tile_set = tile_set
