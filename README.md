@@ -1,5 +1,5 @@
 <p align="center">
-    <img style="background-color: transparent" src="assets/picket.svg">
+	<img style="background-color: transparent" src="assets/picket.svg">
 </p>
 
 # 🏡 Picket
@@ -52,14 +52,14 @@ Should be centered vertically, and should take up the width of the texture.
 
 ### ⚡ Minimal setup
 1. Add the ``Picket`` node to your scene
-    ![GIF of adding Picket to scene]()
+	![GIF of adding Picket to scene]()
 2. Add a [``TileSet``](https://docs.godotengine.org/en/stable/classes/class_tileset.html) in the properties of ``Picket``
-    ![GIF of adding tile set]()
+	![GIF of adding tile set]()
 3. In the *"Tile Set"* tab, add the two textures. Ideally, fence first, post second
-    > note: if textures are not in that order, change the indices in the *"Texture positions"* tab of ``Picket``.
-    ![GIF of adding tile set textures]()
+	> note: if textures are not in that order, change the indices in the *"Texture positions"* tab of ``Picket``.
+	![GIF of adding tile set textures]()
 4. In the *"Tile Map"* tab, paint nodes as you normally would, but only use the post to draw
-    ![GIF of painting fence]()
+	![GIF of painting fence]()
 
 ### ✨ Advanced features
 #### ⚓ Anchors
@@ -84,4 +84,3 @@ If you desire certain functionality within this plugin, or encounter a bug, feel
 This plugin reads the tile map data, and paints two offset child [``TileMapLayer``](https://docs.godotengine.org/en/stable/classes/class_tilemaplayer.html)s with the fence texture - one for vertical connections, and one for horizontal connections. 
 
 For more technical details, read the code contained in this repository.
-
