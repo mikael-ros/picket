@@ -147,7 +147,7 @@ func get_drawn_neighbors(cell: Vector2i) -> Array[Vector2i]:
 ## Retrieve all direct neighbors, in addition to diagonal ones
 func get_all_drawn_neighbors(cell: Vector2i) -> Array[Vector2i]:
 	var all_neighbors : Array[Vector2i] = [Vector2i(cell.x-1,cell.y+1), Vector2i(cell.x-1,cell.y-1), Vector2i(cell.x+1,cell.y+1), Vector2i(cell.x+1,cell.y-1)]
-	#all_neighbors.append_array(get_surrounding_cells(cell))
+	all_neighbors.append_array(get_surrounding_cells(cell))
 	return all_neighbors.filter(is_painted)
 
 ## Counts the amount of drawn neighbors in either direction
@@ -169,19 +169,24 @@ func determine_axis(cell: Vector2i) -> Axis:
 			return Axis.VERTICAL
 		_:
 			return Axis.BOTH_OR_NEITHER
-
+var cell_dict_horizont : Dictionary = {}
+var cell_dict_vertical : Dictionary = {}
 ## Paints fence posts around and within a certain cell
 func draw_post_neighbors(cell: Vector2i, new: bool = false) -> void:
 	match determine_axis(cell):
 		Axis.HORIZONTAL:
 			print(str(cell) + " horizontal " + str(new))
 			if offset > 0:
-				post_layer_horizontal.set_cell(Vector2(cell.x - 1, cell.y), fence_post_texture_ID, Vector2i.ZERO)
+				if cell_dict_horizont.has(Vector2(cell.x - 1, cell.y)):
+					post_layer_horizontal.set_cell(Vector2(cell.x - 1, cell.y), fence_post_texture_ID, Vector2i.ZERO)
+					cell_dict_horizont[Vector2(cell.x - 1, cell.y)] = cell
 			post_layer_horizontal.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 		Axis.VERTICAL:
 			print(str(cell) + " vertical " + str(new))
 			if offset > 0:
-				post_layer_vertical.set_cell(Vector2(cell.x, cell.y - 1), fence_post_texture_ID, Vector2i.ZERO)
+				if cell_dict_vertical.has(Vector2(cell.x, cell.y - 1)):
+					post_layer_vertical.set_cell(Vector2(cell.x, cell.y - 1), fence_post_texture_ID, Vector2i.ZERO)
+					cell_dict_vertical[Vector2(cell.x, cell.y - 1)] = cell
 			post_layer_vertical.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 		Axis.BOTH_OR_NEITHER:
 			print(str(cell) + " both_or_neither " + str(new))
@@ -189,16 +194,20 @@ func draw_post_neighbors(cell: Vector2i, new: bool = false) -> void:
 	if new:
 		update_post_neighbors(cell)
 
-## Remove fence posts in a certain cell, and posts that may have been spawned by it
+## Remove fence posts in a certain cell
 func clear_post_cell(cell: Vector2i, new: bool = false) -> void:
-	if not post_layer_stationary.get_used_cells().has(cell): # If post is not a stationary post (part of chain)
+	if post_layer_stationary.get_used_cells().has(cell):
+		post_layer_stationary.erase_cell(cell)
+	else:
 		post_layer_horizontal.erase_cell(cell)
 		post_layer_vertical.erase_cell(cell)
-		if offset > 0: # If there is an offset, also clear spawned cells
-			post_layer_horizontal.erase_cell(Vector2(cell.x - 1, cell.y))
-			post_layer_vertical.erase_cell(Vector2(cell.x, cell.y - 1))
-	else: # If post is stationary, clear it there
-		post_layer_stationary.erase_cell(cell)
+		if offset > 0:
+			if cell_dict_horizont[Vector2(cell.x - 1, cell.y)] == cell:
+				post_layer_horizontal.erase_cell(Vector2(cell.x - 1, cell.y))
+				cell_dict_horizont.erase(Vector2(cell.x - 1, cell.y))
+			if cell_dict_vertical[Vector2(cell.x, cell.y - 1)] == cell:
+				post_layer_vertical.erase_cell(Vector2(cell.x, cell.y - 1))
+				cell_dict_vertical.erase(Vector2(cell.x, cell.y - 1))
 	if new: # Trigger update of neighbors if necessary
 		update_post_neighbors(cell)
 
