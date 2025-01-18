@@ -141,21 +141,29 @@ func get_drawn_neighbors(cell: Vector2i) -> Array[Vector2i]:
 	return get_surrounding_cells(cell).filter(func(c): return painted_cells.has(c))
 
 ## Counts the amount of drawn neighbors in either direction
-func count_neighbors(cell: Vector2i) -> Vector2i:
-	var axis_neighbors = Vector2i.ZERO			# Neighbors on corresponding axis
+func count_neighbors(cell: Vector2i) -> Vector4i:
+	var axis_neighbors = Vector4i.ZERO			# Neighbors on corresponding axis (-x,+y,+x,-y)
 	for neighbor in get_drawn_neighbors(cell): 	# For every neighbor cell
-		if (neighbor.x == cell.x):				# If neighbor is on y-axis (vertical neighbor)
-			axis_neighbors.y += 1				# Increase y-axis neighbor count
-		else:									# Same, for x-axis (horizontal neighbor)
-			axis_neighbors.x += 1
+		match cell - neighbor:
+			Vector2i(-1,0): # Left of (-x)
+				axis_neighbors.w = 1
+			Vector2i(0,1): 	# Above (+y)
+				axis_neighbors.x = 1
+			Vector2i(1,0): 	# Right of (+x)
+				axis_neighbors.y = 1
+			Vector2i(0,-1): # Below (-y)
+				axis_neighbors.z = 1
 	return axis_neighbors
 
 ## Determines if cell is in a chain of strictly vertical or horizontal cells, or indeterminate
-func determine_axis(cell: Vector2i) -> Axis:
-	match count_neighbors(cell):
-		Vector2i(2,0):
+func determine_axis(cell: Vector2i, neighbor_count: Vector4i = -Vector4i.ONE) -> Axis:
+	var n_count = neighbor_count
+	if neighbor_count == -Vector4i.ONE: # If count has not been performed, perform count
+		n_count = count_neighbors(cell)
+	match n_count:
+		Vector4i(1,0,1,0):
 			return Axis.HORIZONTAL
-		Vector2i(0,2):
+		Vector4i(0,1,0,1):
 			return Axis.VERTICAL
 		_:
 			return Axis.BOTH_OR_NEITHER
