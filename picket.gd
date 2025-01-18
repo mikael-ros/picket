@@ -1,61 +1,86 @@
 @tool
 class_name Picket
 extends TileMapLayer
+## A simple fence plugin for Godot Engine 4.x. Makes the building of fences easy, and dynamic.
+## @tutorial: https://github.com/mikael-ros/picket/readme.md 
 
 # -----------------------------
 # Properties used in the plugin
-@export_group("Texture positions")			# Positions in the tilemap for the textures used by the plugin
-@export var fence_texture_ID : int = 0:		## Position for the texture for the fence itself. Assumed to be first
+
+# Positions in the tilemap for the textures used by the plugin
+@export_group("Texture positions")
+## Position for the texture for the fence itself. Assumed to be first
+@export 
+var fence_texture_ID : int = 0:
 	set(new_fence_texture_ID): 
 		fence_texture_ID = new_fence_texture_ID
 		redraw()
-@export var fence_post_texture_ID : int = 1:## Position for the texture for the posts placed intermittently
+## Position for the texture for the posts placed intermittently
+@export 
+var fence_post_texture_ID : int = 1:
 	set(new_fence_post_texture_ID): 
 		fence_post_texture_ID = new_fence_post_texture_ID
 		redraw()
 
-@export_group("Positioning")				# Exported variables related to position of the fence
-@export_range(0,1, 0.01) var offset = 0.0:	## The offset
+# Exported variables related to position of the fence
+@export_group("Positioning")
+## The offset
+@export_range(0,1, 0.01) 
+var offset = 0.0:
 	set(new_offset): 
 		offset = new_offset
 		set_properties(true)
-@export var origin_x : float = 0.0:			## Custom x origin position
+## Custom x origin position
+@export 
+var origin_x : float = 0.0:
 	set(new_x): 
 		origin_x = new_x
 		set_properties()
-@export var origin_y : float = 0.0:			## Custom y origin position
+## Custom y origin position
+@export 
+var origin_y : float = 0.0:
 	set(new_y): 
 		origin_y = new_y
 		set_properties()
-@export_subgroup("Anchor")					# Where in a tile the intersection of two fences will occur
-@export_range(0, 1, 0.01) var anchor_x : float = 0.5: ## Anchor x 
+		
+# Where in a tile the intersection of two fences will occur
+@export_subgroup("Anchor")
+## Anchor x coordinate
+@export_range(0, 1, 0.01) 
+var anchor_x : float = 0.5: 
 	set(new_x): 
 		anchor_x = new_x
 		set_properties()
-@export_range(0, 1, 0.01) var anchor_y : float = 0.5: ## Anchor y 
+## Anchor y coordinate
+@export_range(0, 1, 0.01) 
+var anchor_y : float = 0.5:
 	set(new_y): 
 		anchor_y = new_y
 		set_properties()
 
 # ---------------
 # Local properties
-var fence_layer_horizontal : TileMapLayer 	## Layer upon which the horizontal parts are displayed
-var fence_layer_vertical : TileMapLayer 	## Layer upon which the horizontal parts are displayed
+var fence_layer_horizontal : TileMapLayer 	## Layer upon which the horizontal parts of fence are displayed
+var fence_layer_vertical : TileMapLayer 	## Layer upon which the vertical parts of fence are displayed
 
-var post_layer_horizontal : TileMapLayer
-var post_layer_vertical : TileMapLayer
-var post_layer_stationary : TileMapLayer
+var post_layer_horizontal : TileMapLayer 	## Layer upon which horizontal posts are displayed
+var post_layer_vertical : TileMapLayer		## Layer upon which vertical posts are displayed
+var post_layer_stationary : TileMapLayer	## Layer upon which stationary posts are displayed
 
-var painted_cells : Array[Vector2i] 		## Used for tracking what cells were painted last revision
+var painted_cells : Array[Vector2i] 		## Used for tracking what cells have been painted, dissimilar from [method get_used_cells]
+var initialized = false ## Has [Picket] been initialized?
 
+## Axis' for fence post usage
 enum Axis {
-	HORIZONTAL,
-	VERTICAL,
-	BOTH_OR_NEITHER
+	HORIZONTAL, 	## Post has a neighbor to the left, and one to the right
+	VERTICAL, 		## Post has neighbors below and above
+	BOTH_OR_NEITHER ## Post has more than two neighbors, or none at all
 }
 	
-var inited = false
+
 # -----------------------------
+
+## Called when [Picket] enters tree
 func _enter_tree() -> void:
 	# Initialize fence
 	fence_layer_horizontal = TileMapLayer.new()
@@ -63,7 +88,7 @@ func _enter_tree() -> void:
 	post_layer_horizontal = TileMapLayer.new()
 	post_layer_vertical = TileMapLayer.new()
 	post_layer_stationary = TileMapLayer.new()
-	inited = true
+	initialized = true
 	
 	# Add children, draw initial fence
 	add_child(fence_layer_horizontal)
@@ -74,22 +99,29 @@ func _enter_tree() -> void:
 	
 	set_properties(true)
 
+## Called when [Picket] exits tree
 func _exit_tree() -> void:
+	# Free all layers
 	fence_layer_horizontal.free()
 	fence_layer_vertical.free()
-	
+	post_layer_horizontal.free()
+	post_layer_vertical.free()
+	post_layer_stationary.free()
+
+## Called when [Picket] enters scene
 func _ready() -> void:
 	set_process(Engine.is_editor_hint()) # Only use [method _process] in the editor
 	if (Engine.is_editor_hint()):
 		changed.connect(set_properties)  # Only connect [method set_properties] if in the editor
 
+## Called every tick, in the editor only
 func _process(delta) -> void:
 	update_tiles() # Update tiles every tick. Not effecient, but cant find a better solution yet
 
-## Propagate properties over
+## Propagate properties over to children
 func set_properties(redraw: bool = false) -> void:
-	if inited:
-		
+	# Only execute the following when [Picket] has not been initialized
+	if not initialized: 
 		# Copy certain properties over
 		if redraw:
 			fence_layer_horizontal.tile_set = tile_set
