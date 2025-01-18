@@ -169,6 +169,18 @@ func determine_axis(cell: Vector2i) -> Axis:
 			return Axis.VERTICAL
 		_:
 			return Axis.BOTH_OR_NEITHER
+			
+func left_of(cell: Vector2i) -> Vector2i:
+	return cell + Vector2i.LEFT
+
+func right_of(cell: Vector2i) -> Vector2i:
+	return cell + Vector2i.RIGHT
+	
+func above(cell: Vector2i) -> Vector2i:
+	return cell + Vector2i.UP
+	
+func below(cell: Vector2i) -> Vector2i:
+	return cell + Vector2i.DOWN
 
 ## Paints fence posts around and within a certain cell
 func draw_post_neighbors(cell: Vector2i, new: bool = false) -> void:
@@ -191,19 +203,19 @@ func clear_post_cell(cell: Vector2i, new: bool = false) -> void:
 	if post_layer_stationary.get_used_cells().has(cell):
 		post_layer_stationary.erase_cell(cell)
 	else:
-		var right_axis = determine_axis(cell + Vector2i.RIGHT)
-		if not is_painted(cell + Vector2i.RIGHT) or right_axis != Axis.HORIZONTAL:
+		var right = right_of(cell)
+		if not is_painted(right) or determine_axis(right) != Axis.HORIZONTAL:
 			post_layer_horizontal.erase_cell(cell)
-		var below_axis = determine_axis(cell + Vector2i.DOWN)
-		if not is_painted(cell + Vector2i.DOWN) or below_axis != Axis.VERTICAL:
+		var below = below(cell)
+		if not is_painted(below) or determine_axis(below) != Axis.VERTICAL:
 			post_layer_vertical.erase_cell(cell)
 		if offset > 0:
-			var left_axis = determine_axis(cell + Vector2i.LEFT)
-			if not is_painted(cell + Vector2i.LEFT) or left_axis != Axis.HORIZONTAL:
-				post_layer_horizontal.erase_cell(cell + Vector2i.LEFT)
-			var above_axis = determine_axis(cell + Vector2i.UP)
-			if not is_painted(cell + Vector2i.UP) or above_axis != Axis.VERTICAL:
-				post_layer_vertical.erase_cell(cell + Vector2i.UP)
+			var left = left_of(cell)
+			if not is_painted(left) or determine_axis(left) != Axis.HORIZONTAL:
+				post_layer_horizontal.erase_cell(left)
+			var above = above(cell)
+			if not is_painted(above) or determine_axis(above) != Axis.VERTICAL:
+				post_layer_vertical.erase_cell(above)
 	if new: # Trigger update of neighbors if necessary
 		update_post_neighbors(cell)
 
