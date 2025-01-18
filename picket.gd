@@ -136,34 +136,36 @@ func update_tiles() -> void:
 			draw_fence_neighbors(cell)
 			draw_post_neighbors(cell, true)
 
+## Is this cell painted (as far as the array [member painted_cells] is aware)?
+func is_painted(cell: Vector2i) -> bool:
+	return painted_cells.has(cell)
+
 ## Retrieve all neighbors that are drawn, as [method get_surrounding_cells] retrieves all possible neighbors, not only existing ones
 func get_drawn_neighbors(cell: Vector2i) -> Array[Vector2i]:
-	return get_surrounding_cells(cell).filter(func(c): return painted_cells.has(c))
+	return get_surrounding_cells(cell).filter(is_painted)
+
+## Retrieve all direct neighbors, in addition to diagonal ones
+func get_all_drawn_neighbors(cell: Vector2i) -> Array[Vector2i]:
+	var all_neighbors : Array[Vector2i] = [Vector2i(cell.x-1,cell.y+1), Vector2i(cell.x-1,cell.y-1), Vector2i(cell.x+1,cell.y+1), Vector2i(cell.x+1,cell.y-1)]
+	#all_neighbors.append_array(get_surrounding_cells(cell))
+	return all_neighbors.filter(is_painted)
 
 ## Counts the amount of drawn neighbors in either direction
-func count_neighbors(cell: Vector2i) -> Vector4i:
-	var axis_neighbors = Vector4i.ZERO			# Neighbors on corresponding axis (-x,+y,+x,-y)
+func count_neighbors(cell: Vector2i) -> Vector2i:
+	var axis_neighbors = Vector2i.ZERO			# Neighbors on corresponding axis
 	for neighbor in get_drawn_neighbors(cell): 	# For every neighbor cell
-		match cell - neighbor:
-			Vector2i(-1,0): # Left of (-x)
-				axis_neighbors.w = 1
-			Vector2i(0,1): 	# Above (+y)
-				axis_neighbors.x = 1
-			Vector2i(1,0): 	# Right of (+x)
-				axis_neighbors.y = 1
-			Vector2i(0,-1): # Below (-y)
-				axis_neighbors.z = 1
+		if (neighbor.x == cell.x):				# If neighbor is on y-axis (vertical neighbor)
+			axis_neighbors.y += 1				# Increase y-axis neighbor count
+		else:									# Same, for x-axis (horizontal neighbor)
+			axis_neighbors.x += 1
 	return axis_neighbors
 
 ## Determines if cell is in a chain of strictly vertical or horizontal cells, or indeterminate
-func determine_axis(cell: Vector2i, neighbor_count: Vector4i = -Vector4i.ONE) -> Axis:
-	var n_count = neighbor_count
-	if neighbor_count == -Vector4i.ONE: # If count has not been performed, perform count
-		n_count = count_neighbors(cell)
-	match n_count:
-		Vector4i(1,0,1,0):
+func determine_axis(cell: Vector2i) -> Axis:
+	match count_neighbors(cell):
+		Vector2i(2,0):
 			return Axis.HORIZONTAL
-		Vector4i(0,1,0,1):
+		Vector2i(0,2):
 			return Axis.VERTICAL
 		_:
 			return Axis.BOTH_OR_NEITHER
@@ -172,33 +174,39 @@ func determine_axis(cell: Vector2i, neighbor_count: Vector4i = -Vector4i.ONE) ->
 func draw_post_neighbors(cell: Vector2i, new: bool = false) -> void:
 	match determine_axis(cell):
 		Axis.HORIZONTAL:
+			print(str(cell) + " horizontal " + str(new))
 			if offset > 0:
 				post_layer_horizontal.set_cell(Vector2(cell.x - 1, cell.y), fence_post_texture_ID, Vector2i.ZERO)
 			post_layer_horizontal.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 		Axis.VERTICAL:
+			print(str(cell) + " vertical " + str(new))
 			if offset > 0:
 				post_layer_vertical.set_cell(Vector2(cell.x, cell.y - 1), fence_post_texture_ID, Vector2i.ZERO)
 			post_layer_vertical.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 		Axis.BOTH_OR_NEITHER:
+			print(str(cell) + " both_or_neither " + str(new))
 			post_layer_stationary.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 	if new:
 		update_post_neighbors(cell)
 
-## Remove fence posts in a certain cell
+## Remove fence posts in a certain cell, and posts that may have been spawned by it
 func clear_post_cell(cell: Vector2i, new: bool = false) -> void:
-	post_layer_horizontal.erase_cell(cell)
-	post_layer_vertical.erase_cell(cell)
-	post_layer_stationary.erase_cell(cell)
-	if new:
+	if not post_layer_stationary.get_used_cells().has(cell): # If post is not a stationary post (part of chain)
+		post_layer_horizontal.erase_cell(cell)
+		post_layer_vertical.erase_cell(cell)
+		if offset > 0: # If there is an offset, also clear spawned cells
+			post_layer_horizontal.erase_cell(Vector2(cell.x - 1, cell.y))
+			post_layer_vertical.erase_cell(Vector2(cell.x, cell.y - 1))
+	else: # If post is stationary, clear it there
+		post_layer_stationary.erase_cell(cell)
+	if new: # Trigger update of neighbors if necessary
 		update_post_neighbors(cell)
-					
+
+## Update neighbors surrounding a post, in case posts can no longer be movable				
 func update_post_neighbors(cell: Vector2i) -> void:
-	var all_neighbors = [Vector2i(cell.x-1,cell.y+1), Vector2i(cell.x-1,cell.y-1), Vector2i(cell.x+1,cell.y+1), Vector2i(cell.x+1,cell.y-1)]
-	all_neighbors.append_array(get_drawn_neighbors(cell))
-	for neighbor in all_neighbors:
-		if painted_cells.has(neighbor):
-			clear_post_cell(neighbor)
-			draw_post_neighbors(neighbor)
+	for neighbor in get_all_drawn_neighbors(cell):
+		clear_post_cell(neighbor)
+		draw_post_neighbors(neighbor)
 				
 ## Paint neighbors of a certain cell. More performant than [method draw_fence]
 func draw_fence_neighbors(cell: Vector2i) -> void:
