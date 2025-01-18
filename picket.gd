@@ -174,17 +174,14 @@ func determine_axis(cell: Vector2i) -> Axis:
 func draw_post_neighbors(cell: Vector2i, new: bool = false) -> void:
 	match determine_axis(cell):
 		Axis.HORIZONTAL:
-			print(str(cell) + " horizontal " + str(new))
 			if offset > 0:
 				post_layer_horizontal.set_cell(Vector2(cell.x - 1, cell.y), fence_post_texture_ID, Vector2i.ZERO)
 			post_layer_horizontal.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 		Axis.VERTICAL:
-			print(str(cell) + " vertical " + str(new))
 			if offset > 0:
 				post_layer_vertical.set_cell(Vector2(cell.x, cell.y - 1), fence_post_texture_ID, Vector2i.ZERO)
 			post_layer_vertical.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 		Axis.BOTH_OR_NEITHER:
-			print(str(cell) + " both_or_neither " + str(new))
 			post_layer_stationary.set_cell(cell, fence_post_texture_ID, Vector2i.ZERO)
 	if new:
 		update_post_neighbors(cell)
@@ -194,19 +191,19 @@ func clear_post_cell(cell: Vector2i, new: bool = false) -> void:
 	if post_layer_stationary.get_used_cells().has(cell):
 		post_layer_stationary.erase_cell(cell)
 	else:
-		var right_axis = determine_axis(Vector2(cell.x + 1, cell.y))
-		if not is_painted(Vector2(cell.x + 1, cell.y)) or right_axis == Axis.BOTH_OR_NEITHER or right_axis == Axis.VERTICAL:
+		var right_axis = determine_axis(cell + Vector2i.RIGHT)
+		if not is_painted(cell + Vector2i.RIGHT) or right_axis != Axis.HORIZONTAL:
 			post_layer_horizontal.erase_cell(cell)
-		var above_axis = determine_axis(Vector2(cell.x, cell.y + 1))
-		if not is_painted(Vector2(cell.x, cell.y + 1)) or above_axis == Axis.BOTH_OR_NEITHER or above_axis == Axis.HORIZONTAL:
+		var below_axis = determine_axis(cell + Vector2i.DOWN)
+		if not is_painted(cell + Vector2i.DOWN) or below_axis != Axis.VERTICAL:
 			post_layer_vertical.erase_cell(cell)
 		if offset > 0:
-			var left_axis = determine_axis(Vector2(cell.x - 1, cell.y))
-			if not is_painted(Vector2(cell.x - 1, cell.y)) or left_axis == Axis.BOTH_OR_NEITHER or left_axis == Axis.VERTICAL:
-				post_layer_horizontal.erase_cell(Vector2(cell.x - 1, cell.y))
-			var below_axis = determine_axis(Vector2(cell.x, cell.y - 1))
-			if not is_painted(Vector2(cell.x, cell.y - 1)) or below_axis == Axis.BOTH_OR_NEITHER or below_axis == Axis.HORIZONTAL:
-				post_layer_vertical.erase_cell(Vector2(cell.x, cell.y - 1))
+			var left_axis = determine_axis(cell + Vector2i.LEFT)
+			if not is_painted(cell + Vector2i.LEFT) or left_axis != Axis.HORIZONTAL:
+				post_layer_horizontal.erase_cell(cell + Vector2i.LEFT)
+			var above_axis = determine_axis(cell + Vector2i.UP)
+			if not is_painted(cell + Vector2i.UP) or above_axis != Axis.VERTICAL:
+				post_layer_vertical.erase_cell(cell + Vector2i.UP)
 	if new: # Trigger update of neighbors if necessary
 		update_post_neighbors(cell)
 
