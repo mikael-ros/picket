@@ -41,6 +41,21 @@ var origin_y : float = 0.0:
 	set(new_y): 
 		origin_y = new_y
 		set_properties()
+
+## Modes for directional fence interpretation
+enum DIRECTION_INTERPRETATION_MODE {
+	NONE,		## Do not interpret any direction rotation
+	EXPLICIT,	## User explicitly chooses by rotating in the tile editor
+	#PREDICTIVE,## Predict directions based on position compared to previously painted cell (not implemented)
+	#IMPLICIT, 	## Calculate directions based on ray-casting or similar (not implemented)
+}
+
+## How directional fences are interpreted
+@export_enum("None", "Explicit")
+var direction_interpretation_mode : int = 0:
+	set(new_mode): 
+		direction_interpretation_mode = new_mode
+		redraw()
 		
 # Where in a tile the intersection of two fences will occur
 @export_subgroup("Anchor")
@@ -267,19 +282,42 @@ func update_post_neighbors(cell: Vector2i) -> void:
 	for neighbor in get_all_drawn_neighbors(cell): 	# For every neighbor (including diagonals)
 		clear_post_cell(neighbor)					# Clear current drawn posts
 		draw_post_neighbors(neighbor)				# Redraw posts again
-				
+
+## Taken from Godot docs example
+enum TileTransform {
+	ROTATE_0 = 0,
+	ROTATE_90 = TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_H,
+	ROTATE_180 = TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V,
+	ROTATE_270 = TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_V,
+}
+
 ## Paint neighbors of a certain cell
 func draw_fence_neighbors(cell: Vector2i) -> void:
+	var alternate_tile = get_cell_alternative_tile(cell)
 	for neighbor in get_drawn_neighbors(cell): 	# For every neighbor cell
 		var pos = cell
 		if neighbor.x == cell.x: 	# If neighbor is on vertical axis
 			if neighbor.y < cell.y: # If neighbor is below
 				pos = above(cell)
-			fence_layer_vertical.set_cell(pos, fence_texture_ID, Vector2i.ZERO, TileSetAtlasSource.TRANSFORM_TRANSPOSE + TileSetAtlasSource.TRANSFORM_FLIP_V)
+				
+			var rotation = TileTransform.ROTATE_270
+			if direction_interpretation_mode == DIRECTION_INTERPRETATION_MODE.EXPLICIT:
+				match alternate_tile:
+					TileTransform.ROTATE_90:
+						rotation = TileTransform.ROTATE_0
+					TileTransform.ROTATE_180:
+						rotation = TileTransform.ROTATE_90
+					TileTransform.ROTATE_270:
+						rotation = TileTransform.ROTATE_180
+			fence_layer_vertical.set_cell(pos, fence_texture_ID, Vector2i.ZERO, rotation)
 		elif neighbor.y == cell.y:	# If neighbor is on horizontal axis
 			if neighbor.x < cell.x: # If neighbor is to the left
 				pos = left_of(cell)
-			fence_layer_horizontal.set_cell(pos, fence_texture_ID, Vector2i.ZERO)
+			
+			var rotation = 0
+			if direction_interpretation_mode == DIRECTION_INTERPRETATION_MODE.EXPLICIT:
+				rotation = alternate_tile
+			fence_layer_horizontal.set_cell(pos, fence_texture_ID, Vector2i.ZERO, rotation)
 
 ## Remove neighbors of a certain cell.
 func clear_fence_neighbors(cell: Vector2i) -> void:
