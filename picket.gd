@@ -268,7 +268,7 @@ func update_post_neighbors(cell: Vector2i) -> void:
 		clear_post_cell(neighbor)					# Clear current drawn posts
 		draw_post_neighbors(neighbor)				# Redraw posts again
 				
-## Paint neighbors of a certain cell. More performant than [method draw_fence]
+## Paint neighbors of a certain cell
 func draw_fence_neighbors(cell: Vector2i) -> void:
 	for neighbor in get_drawn_neighbors(cell): 	# For every neighbor cell
 		var pos = cell
