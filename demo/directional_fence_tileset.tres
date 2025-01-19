@@ -1,0 +1,19 @@
+[gd_resource type="TileSet" load_steps=5 format=3 uid="uid://1m0eln0ko0d1"]
+
+[ext_resource type="Texture2D" uid="uid://bbtsg4j2x1y4o" path="res://addons/picket/assets/textures/directional_fence_arrow.png" id="1_65abw"]
+[ext_resource type="Texture2D" uid="uid://dixy20y24a1c3" path="res://addons/picket/assets/textures/directional_fence_marker.png" id="2_qspul"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_372qt"]
+texture = ExtResource("1_65abw")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t1atf"]
+texture = ExtResource("2_qspul")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
+[resource]
+tile_size = Vector2i(32, 32)
+sources/0 = SubResource("TileSetAtlasSource_372qt")
+sources/1 = SubResource("TileSetAtlasSource_t1atf")

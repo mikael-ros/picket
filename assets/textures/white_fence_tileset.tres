@@ -1,0 +1,25 @@
+[gd_resource type="TileSet" load_steps=5 format=3 uid="uid://d07fdry31lgdo"]
+
+[ext_resource type="Texture2D" uid="uid://dydxnfqja7f3x" path="res://addons/picket/assets/textures/white_fence_planks.png" id="1_msd4n"]
+[ext_resource type="Texture2D" uid="uid://d4iw53a0036r1" path="res://addons/picket/assets/textures/white_fence_post.png" id="2_tgmkc"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_2fp6p"]
+texture = ExtResource("1_msd4n")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_130d1"]
+texture = ExtResource("2_tgmkc")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
+[resource]
+tile_size = Vector2i(32, 32)
+sources/0 = SubResource("TileSetAtlasSource_2fp6p")
+sources/1 = SubResource("TileSetAtlasSource_130d1")
