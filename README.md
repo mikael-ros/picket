@@ -1,5 +1,5 @@
 <p align="center">
-	<img style="background-color: transparent" src="assets/picket_wide_logo.svg">
+	<img style="background-color: transparent" src="assets/picket_wide_logo.png">
 </p>
 
 ---
