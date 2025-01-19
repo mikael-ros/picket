@@ -1,9 +1,8 @@
 @tool
 class_name Picket
+extends TileMapLayer
 ## A simple fence plugin for Godot Engine 4.x. Makes the building of fences easy, and dynamic.
 ## @tutorial: https://github.com/mikael-ros/picket/readme.md 
-extends TileMapLayer
-
 # -----------------------------
 # Properties used in the plugin
 
