@@ -1,8 +1,8 @@
 <p align="center">
-	<img style="background-color: transparent" src="assets/picket.svg">
+	<img style="background-color: transparent" src="assets/picket_wide_logo.svg">
 </p>
 
-# 🏡 Picket
+---
 
 A simple fence plugin for [Godot Engine](https://godotengine.org/) 4.x. **Makes the building of fences easy, and dynamic.**
 
