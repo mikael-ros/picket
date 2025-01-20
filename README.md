@@ -43,23 +43,27 @@ This plugin uses two separate textures; one for your fence, and one for the post
 #### Post texture
 Post should be centered in the middle of it's texture, but can be of any size you like.
 
-![Example post texture]()
+![Example post texture](assets/textures/white_fence_post.png)
 
 #### Fence texture
 Should be centered vertically, and should take up the width of the texture.
 
-![Example fence texture]()
+![Example fence texture](assets/textures/white_fence_planks.png)
 
 ### ⚡ Minimal setup
 1. Add the **Picket** node to your scene
-	![GIF of adding Picket to scene]()
+
+	![Adding Picket to scene](assets/previews/add_picket_to_scene.png)
 2. Add a [**TileSet**](https://docs.godotengine.org/en/stable/classes/class_tileset.html) in the properties of **Picket**
-	![GIF of adding tile set]()
+
+	![Adding tile set](assets/previews/add_tileset.png)
 3. In the *"Tile Set"* tab, add the two textures. Ideally, fence first, post second
 	> note: if textures are not in that order, change the indices in the *Texture positions* tab of **Picket**.
-	![GIF of adding tile set textures]()
-4. In the *"Tile Map"* tab, paint nodes as you normally would, but only use the post to draw
-	![GIF of painting fence]()
+
+	![Adding tile set textures](assets/previews/add_tileset_textures.png)
+4. In the *"Tile Map"* tab, paint nodes as you normally would
+
+	![Painting fence](assets/previews/painting.webm)
 
 ### 📂 Using the demo
 Load [``demo.tscn``](/demo/demo.tscn) into a Godot project where you have installed and enabled **Picket**.
