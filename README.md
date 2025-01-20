@@ -12,7 +12,7 @@ A simple fence plugin for [Godot Engine](https://godotengine.org/) 4.x. **Makes 
 
 ## 🤔 The why?
 
-I created this plugin for use in a small game project I'm working on. I wanted to have a simple and flexible solution for drawing fences that autoconnect, and could not find any current solutions. Such solutions may exist, but Google (as usual these days) failed me, so I decided to implement it myself. *If anything, I learnt something from it :)*
+I created this plugin for use in a small game project I'm working on. I wanted to have a simple and flexible solution for drawing fences that auto-connect, and could not find any simple solutions. Such solutions may exist, but Google (as usual these days) failed me, so I decided to implement it myself. *If anything, I learnt something from it :)*
 
 ## ⚙️ Installation
 ### 💚 Easy
@@ -61,7 +61,7 @@ Should be centered vertically, and should take up the width of the texture.
 	> note: if textures are not in that order, change the indices in the *Texture positions* tab of **Picket**.
 
 	![Adding tile set textures](assets/previews/add_tileset_textures.png)
-4. In the *"Tile Map"* tab, paint nodes as you normally would
+4. In the *"Tile Map"* tab, paint tiles as you normally would
 
 	![Painting fence](assets/previews/painting.gif)
 
