@@ -31,7 +31,7 @@ During development of this addon, I utilized a slightly advanced function within
 1. In your project directory, ``git init``, if you do not already have a git repository
 2. Create the ``/addons/Picket/`` directory
 3. Execute ``git submodule add git@github.com:mikael-ros/picket.git /addons/Picket``
-4. In the Godot Editor, click ``Project`` -> ``Project Settings`` -> ``Plugins`` -> Click the ``Enable`` tick next to the **Picket** plugin
+4. In the Godot Editor, click *"Project"* -> *"Project Settings"* -> *"Plugins"* -> Click the ``Enable`` tick next to the **Picket** plugin
 
 ## 🛠️ Usage
 ### 🖼️ Texture
@@ -51,18 +51,18 @@ Should be centered vertically, and should take up the width of the texture.
 ![Example fence texture]()
 
 ### ⚡ Minimal setup
-1. Add the ``Picket`` node to your scene
+1. Add the **Picket** node to your scene
 	![GIF of adding Picket to scene]()
-2. Add a [``TileSet``](https://docs.godotengine.org/en/stable/classes/class_tileset.html) in the properties of ``Picket``
+2. Add a [**TileSet**](https://docs.godotengine.org/en/stable/classes/class_tileset.html) in the properties of **Picket**
 	![GIF of adding tile set]()
 3. In the *"Tile Set"* tab, add the two textures. Ideally, fence first, post second
-	> note: if textures are not in that order, change the indices in the *"Texture positions"* tab of ``Picket``.
+	> note: if textures are not in that order, change the indices in the *Texture positions* tab of **Picket**.
 	![GIF of adding tile set textures]()
 4. In the *"Tile Map"* tab, paint nodes as you normally would, but only use the post to draw
 	![GIF of painting fence]()
 
 ### 📂 Using the demo
-Load [demo.tscn](/demo/demo.tscn) into a Godot project where you have installed and enabled ``Picket``.
+Load [``demo.tscn``](/demo/demo.tscn) into a Godot project where you have installed and enabled **Picket**.
 
 ### ✨ Advanced features
 #### ⚓ Anchors
@@ -71,7 +71,7 @@ You can adjust the position at which the fences intersect. This shifts the posit
 ![How anchors affect the intersection]()
 
 > [!TIP]
-> If you stil want to adjust the position manually, use the *"Origin"* positions. Any adjustment of the normal *"Position"* vector will be overwritten otherwise.
+> If you stil want to adjust the position manually, use the *Origin* positions. Any adjustment of the normal *Position* vector will be overwritten otherwise.
 
 #### 📍 Offset
 You can adjust where in the tile the posts are placed. The addon will dynamically fill in posts where absent, so spacing is consistent.
@@ -82,8 +82,19 @@ You can adjust the spacing by which posts are placed.
 > [!NOTE]
 > You can not affect the position by intersections, these are locked for realism reasons.
 
-> [!WARN]
+> [!CAUTION]
 > Not yet implemented
+
+#### 🔁 Rotation
+You can rotate the fence direction by first enabling *Positioning* -> *Direction interpretation* -> ``Direction interpretation mode``
+
+Additionally, you can enable "unsupported" rotation (eg. rotation that is 90 degrees or 270 degrees) by ticking the corresponding box. These are regarded as "unsupported" because they look weird, but may be useful in certain situations.
+
+##### 🔂 Explicit rotation mode
+This is the only supported rotation mode at the moment. Fence is rotated by using the controls in the Tile Map editor. 
+
+> [!NOTE]
+> At the moment, there is no preview for the rotation, as this is difficult to implement.
 
 ### 🧩 Current limitations and feature suggestions
 Currently, tile shapes are not supported beyond *"Square"*. Non-uniform fences aren't supported yet either, so fences can only be straight.
@@ -92,6 +103,6 @@ If you desire certain functionality within this plugin, or encounter a bug, feel
 
 
 ## 💾 Short technical description
-This plugin reads the tile map data, and paints two offset child [``TileMapLayer``](https://docs.godotengine.org/en/stable/classes/class_tilemaplayer.html)s with the fence texture - one for vertical connections, and one for horizontal connections. 
+This plugin reads the tile map data, and paints two offset child [**TileMapLayer**](https://docs.godotengine.org/en/stable/classes/class_tilemaplayer.html)s with the fence texture - one for vertical connections, and one for horizontal connections. 
 
 For more technical details, read the code contained in this repository.
