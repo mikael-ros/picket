@@ -26,8 +26,7 @@ This will be the easiest method, if you don't mind updating manually
 
 ### 🧠 Advanced, but flexible
 > [!WARNING]
-> I cannot guarantee the below working as expected, I have only recently began utilizing this methodology
-During development of this addon, I utilized a slightly advanced function within [git](https://git-scm.com/), [submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules). The benefit of this, I believe, is that you can simply ``git submodule update --remote`` to fetch upstream changes.
+> I cannot guarantee the below working as expected, I have only recently began utilizing this methodology during development of this addon, I utilized a slightly advanced function within [git](https://git-scm.com/), [submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules). The benefit of this, I believe, is that you can simply ``git submodule update --remote`` to fetch upstream changes.
 1. In your project directory, ``git init``, if you do not already have a git repository
 2. Create the ``/addons/Picket/`` directory
 3. Execute ``git submodule add git@github.com:mikael-ros/picket.git /addons/Picket``
@@ -36,7 +35,7 @@ During development of this addon, I utilized a slightly advanced function within
 ## 🛠️ Usage
 ### 🖼️ Texture
 > [!NOTE]
-> This plugin has only been developed with 1:1 aspect ratio in mind. Other ratios may work, but is currently not officially supported
+> This plugin has only been developed with 1:1 aspect ratio in mind. Other ratios may work, but are not officially supported
 
 This plugin uses two separate textures; one for your fence, and one for the posts. 
 
