@@ -174,7 +174,7 @@ func _preview_cell() -> void:
 	# as the Godot editor - to my knowledge - does not yet expose rotation settings in the Tile Map editor
 	if self in _editor_interface.get_selection().get_selected_nodes(): 			# If Picket is selected
 		var prev_mouse_pos : Vector2i = _mouse_pos								# Save previous cursor location
-		_mouse_pos = local_to_map(get_global_mouse_position()) - Vector2i.ONE 	# Get current cursor location, in TileMapLayer terms
+		_mouse_pos = local_to_map(get_global_mouse_position() - position) 					# Get current cursor location, in TileMapLayer terms
 		if prev_mouse_pos != _mouse_pos: 									  	# If position has changed	
 			_preview_layer.erase_cell(prev_mouse_pos)							# Erase previous preview
 			if not _is_painted(_mouse_pos): 									# If the current position is not already painted (preview useless)
