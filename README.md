@@ -10,7 +10,7 @@ A simple fence plugin for [Godot Engine](https://godotengine.org/) 4.x. **Makes 
 
 <a href='https://ko-fi.com/Z8Z212GZR6' target='_blank'><img height='60' style='border:0px;height:60px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
-## 🤔 The why?
+## 🤔 Why?
 
 I created this plugin for use in a small game project I'm working on. I wanted to have a simple and flexible solution for drawing fences that auto-connect, and could not find any simple solutions. Such solutions may exist, but Google (as usual these days) failed me, so I decided to implement it myself. *If anything, I learnt something from it :)*
 
@@ -74,7 +74,7 @@ You can adjust the position at which the fences intersect. This shifts the posit
 ![How anchors affect the intersection](assets/previews/anchor.gif)
 
 > [!TIP]
-> If you stil want to adjust the position manually, use the *Origin* positions. Any adjustment of the normal *Position* vector will be overwritten otherwise.
+> If you still want to adjust the position manually, use the *Origin* positions. Any adjustment of the normal *Position* vector will be overwritten otherwise.
 
 #### 📍 Offset
 You can adjust where in the tile the posts are placed. The addon will dynamically fill in posts where absent, so spacing is consistent.
