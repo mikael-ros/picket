@@ -94,7 +94,7 @@ var _preview_layer : TileMapLayer	 		## Layer upon which tile edits are previewe
 var _painted_cells : Array[Vector2i] 		## Used for tracking what cells have been painted, dissimilar from [method get_used_cells]
 var _initialized = false 					## Has [Picket] been initialized?
 
-var _mouse_pos = null 						## Used for tracking previous mouse position in the editor
+var _mouse_pos : Vector2i = -Vector2i.ONE 	## Used for tracking previous mouse position in the editor
 
 ## Axis' for fence post usage
 enum Axis {
@@ -162,8 +162,9 @@ func _ready() -> void:
 
 ## Called every tick, in the editor only
 func _process(delta) -> void:
-	_preview_cell()
-	_update_tiles() # Update tiles every tick. Not effecient, but cant find a better solution yet
+	if _initialized:
+		_preview_cell()
+		_update_tiles() # Update tiles every tick. Not effecient, but cant find a better solution yet
 
 ## Preview the currently hovered cell
 func _preview_cell() -> void:
@@ -172,7 +173,7 @@ func _preview_cell() -> void:
 	# While the second is possible (though computationally intensive), the first does not seem possible,
 	# as the Godot editor - to my knowledge - does not yet expose rotation settings in the Tile Map editor
 	if self in _editor_interface.get_selection().get_selected_nodes(): 			# If Picket is selected
-		var prev_mouse_pos = _mouse_pos											# Save previous cursor location
+		var prev_mouse_pos : Vector2i = _mouse_pos								# Save previous cursor location
 		_mouse_pos = local_to_map(get_global_mouse_position()) - Vector2i.ONE 	# Get current cursor location, in TileMapLayer terms
 		if prev_mouse_pos != _mouse_pos: 									  	# If position has changed	
 			_preview_layer.erase_cell(prev_mouse_pos)							# Erase previous preview
@@ -211,8 +212,9 @@ func _set_properties(redraw: bool = false) -> void:
 	
 ## Redraws all tiles. Used for texture changes
 func _redraw() -> void:
-	_painted_cells = []
-	_update_tiles()
+	if _initialized:
+		_painted_cells = []
+		_update_tiles()
 	
 ## Update all tiles, based on differences
 func _update_tiles() -> void:
