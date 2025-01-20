@@ -89,6 +89,8 @@ var _post_layer_horizontal : TileMapLayer 	## Layer upon which horizontal posts 
 var _post_layer_vertical : TileMapLayer		## Layer upon which vertical posts are displayed
 var _post_layer_stationary : TileMapLayer	## Layer upon which stationary posts are displayed
 
+var _preview_layer : TileMapLayer	 		## Layer upon which tile edits are previewed to the user
+
 var _painted_cells : Array[Vector2i] 		## Used for tracking what cells have been painted, dissimilar from [method get_used_cells]
 var _initialized = false ## Has [Picket] been initialized?
 
@@ -117,6 +119,9 @@ func _enter_tree() -> void:
 	_post_layer_horizontal = TileMapLayer.new()
 	_post_layer_vertical = TileMapLayer.new()
 	_post_layer_stationary = TileMapLayer.new()
+	
+	if Engine.is_editor_hint():
+		_preview_layer = TileMapLayer.new()
 	_initialized = true
 	
 	# Add children, draw initial fence
@@ -125,6 +130,9 @@ func _enter_tree() -> void:
 	add_child(_post_layer_horizontal)
 	add_child(_post_layer_vertical)
 	add_child(_post_layer_stationary)
+	
+	if _preview_layer:
+		add_child(_preview_layer)
 	
 	_set_properties(true)
 
@@ -136,16 +144,36 @@ func _exit_tree() -> void:
 	_post_layer_horizontal.free()
 	_post_layer_vertical.free()
 	_post_layer_stationary.free()
+	
+	if _preview_layer:
+		_preview_layer.free()
 
+var _editor_interface # for caching EditorInterface
 ## Called when [Picket] enters scene
 func _ready() -> void:
 	set_process(Engine.is_editor_hint()) # Only use [method _process] in the editor
-	if (Engine.is_editor_hint()):
+	if Engine.is_editor_hint():
 		changed.connect(_set_properties)  # Only connect [method set_properties] if in the editor
+		var plugin = EditorPlugin.new()
+		_editor_interface = plugin.get_editor_interface() # Save editor interface
+		plugin.queue_free()
 
 ## Called every tick, in the editor only
 func _process(delta) -> void:
+	_preview_cell()
 	_update_tiles() # Update tiles every tick. Not effecient, but cant find a better solution yet
+
+var mouse_pos = null
+
+## Preview the currently hovered cell
+func _preview_cell() -> void:
+	if self in _editor_interface.get_selection().get_selected_nodes():
+		var prev_mouse_pos = mouse_pos
+		mouse_pos = local_to_map(get_global_mouse_position()) - Vector2i.ONE
+		if prev_mouse_pos != mouse_pos:
+			_preview_layer.erase_cell(prev_mouse_pos)
+			if not _is_painted(mouse_pos): 
+				_preview_layer.set_cell(mouse_pos, 1, Vector2i.ZERO, 0)
 
 ## Propagate properties over to children
 func _set_properties(redraw: bool = false) -> void:
@@ -158,6 +186,8 @@ func _set_properties(redraw: bool = false) -> void:
 			_post_layer_horizontal.tile_set = tile_set
 			_post_layer_vertical.tile_set = tile_set
 			_post_layer_stationary.tile_set = tile_set
+			if _preview_layer:
+				_preview_layer.tile_set = tile_set
 			_redraw()
 		# todo: copy more properties over? maybe write a for-each? not sure. 
 		
@@ -182,6 +212,12 @@ func _redraw() -> void:
 	
 ## Update all tiles, based on differences
 func _update_tiles() -> void:
+	# The methodology outlined below is fairly terrible. Ideally, when a tile is set,
+	# we'd just want to read that coordinate and perform the update there, but it doesn't
+	# seem like that is possible in Godot 4.3 so far
+	# This method simply checks for any new cells in the array, with a time complexity of O(n)
+	# As you can imagine, this only gets worse as the amount of cells grows. 
+	
 	var prev_painted_cells = _painted_cells
 	_painted_cells = get_used_cells() 
 			
@@ -339,4 +375,3 @@ func _clear_fence_neighbors(cell: Vector2i) -> void:
 	_fence_layer_horizontal.erase_cell(_left_of(cell))	# Cell to the left
 	_fence_layer_vertical.erase_cell(cell)				# Cell above
 	_fence_layer_vertical.erase_cell(_above(cell))		# Cell below
-	
