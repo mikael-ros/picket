@@ -172,13 +172,15 @@ func _preview_cell() -> void:
 	# Ideally I wanted to display rotation, and preview what the fence will look like with the post added
 	# While the second is possible (though computationally intensive), the first does not seem possible,
 	# as the Godot editor - to my knowledge - does not yet expose rotation settings in the Tile Map editor
-	if self in _editor_interface.get_selection().get_selected_nodes(): 			# If Picket is selected
-		var prev_mouse_pos : Vector2i = _mouse_pos								# Save previous cursor location
-		_mouse_pos = local_to_map(get_global_mouse_position() - position) 					# Get current cursor location, in TileMapLayer terms
-		if prev_mouse_pos != _mouse_pos: 									  	# If position has changed	
-			_preview_layer.erase_cell(prev_mouse_pos)							# Erase previous preview
-			if not _is_painted(_mouse_pos): 									# If the current position is not already painted (preview useless)
-				_preview_layer.set_cell(_mouse_pos, 1, Vector2i.ZERO, 0)		# Paint a preview
+	if self in _editor_interface.get_selection().get_selected_nodes(): 		# If Picket is selected
+		var prev_mouse_pos : Vector2i = _mouse_pos							# Save previous cursor location
+		_mouse_pos = local_to_map(get_global_mouse_position() - position) 	# Get current cursor location, in TileMapLayer terms
+		if prev_mouse_pos != _mouse_pos: 									# If position has changed	
+			_preview_layer.erase_cell(prev_mouse_pos)						# Erase previous preview
+			if not _is_painted(_mouse_pos): 								# If the current position is not already painted (preview useless)
+				_preview_layer.set_cell(_mouse_pos, 1, Vector2i.ZERO, 0)	# Paint a preview
+	elif _preview_layer.get_used_cells().has(_mouse_pos):					# If no longer selected
+		_preview_layer.erase_cell(_mouse_pos)								# Erase the pointer
 
 ## Propagate properties over to children
 func _set_properties(redraw: bool = false) -> void:
