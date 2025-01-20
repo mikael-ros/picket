@@ -6,7 +6,7 @@
 
 A simple fence plugin for [Godot Engine](https://godotengine.org/) 4.x. **Makes the building of fences easy, and dynamic.**
 
-![GIF of painting a P in Picket]()
+![GIF of painting a P in Picket](assets/previews/painting_p.gif)
 
 <a href='https://ko-fi.com/Z8Z212GZR6' target='_blank'><img height='60' style='border:0px;height:60px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
@@ -63,7 +63,7 @@ Should be centered vertically, and should take up the width of the texture.
 	![Adding tile set textures](assets/previews/add_tileset_textures.png)
 4. In the *"Tile Map"* tab, paint nodes as you normally would
 
-	![Painting fence](assets/previews/painting.mp4)
+	![Painting fence](assets/previews/painting.gif)
 
 ### 📂 Using the demo
 Load [``demo.tscn``](/demo/demo.tscn) into a Godot project where you have installed and enabled **Picket**.
@@ -72,7 +72,7 @@ Load [``demo.tscn``](/demo/demo.tscn) into a Godot project where you have instal
 #### ⚓ Anchors
 You can adjust the position at which the fences intersect. This shifts the position, and can be useful if you want to have padding. 
 
-![How anchors affect the intersection]()
+![How anchors affect the intersection](assets/previews/anchor.gif)
 
 > [!TIP]
 > If you stil want to adjust the position manually, use the *Origin* positions. Any adjustment of the normal *Position* vector will be overwritten otherwise.
@@ -80,17 +80,12 @@ You can adjust the position at which the fences intersect. This shifts the posit
 #### 📍 Offset
 You can adjust where in the tile the posts are placed. The addon will dynamically fill in posts where absent, so spacing is consistent.
 
-#### 📏 Spacing
-You can adjust the spacing by which posts are placed. 
-
-> [!NOTE]
-> You can not affect the position by intersections, these are locked for realism reasons.
-
-> [!CAUTION]
-> Not yet implemented
+![Offset adjustment](assets/previews/offsets.gif)
 
 #### 🔁 Rotation
 You can rotate the fence direction by first enabling *Positioning* -> *Direction interpretation* -> ``Direction interpretation mode``
+
+![Rotations](assets/previews/rotations.png)
 
 Additionally, you can enable "unsupported" rotation (eg. rotation that is 90 degrees or 270 degrees) by ticking the corresponding box. These are regarded as "unsupported" because they look weird, but may be useful in certain situations.
 
