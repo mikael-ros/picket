@@ -92,7 +92,9 @@ var _post_layer_stationary : TileMapLayer	## Layer upon which stationary posts a
 var _preview_layer : TileMapLayer	 		## Layer upon which tile edits are previewed to the user
 
 var _painted_cells : Array[Vector2i] 		## Used for tracking what cells have been painted, dissimilar from [method get_used_cells]
-var _initialized = false ## Has [Picket] been initialized?
+var _initialized = false 					## Has [Picket] been initialized?
+
+var _mouse_pos = null 						## Used for tracking previous mouse position in the editor
 
 ## Axis' for fence post usage
 enum Axis {
@@ -163,17 +165,19 @@ func _process(delta) -> void:
 	_preview_cell()
 	_update_tiles() # Update tiles every tick. Not effecient, but cant find a better solution yet
 
-var mouse_pos = null
-
 ## Preview the currently hovered cell
 func _preview_cell() -> void:
-	if self in _editor_interface.get_selection().get_selected_nodes():
-		var prev_mouse_pos = mouse_pos
-		mouse_pos = local_to_map(get_global_mouse_position()) - Vector2i.ONE
-		if prev_mouse_pos != mouse_pos:
-			_preview_layer.erase_cell(prev_mouse_pos)
-			if not _is_painted(mouse_pos): 
-				_preview_layer.set_cell(mouse_pos, 1, Vector2i.ZERO, 0)
+	# This is currently a simple fence post preview.
+	# Ideally I wanted to display rotation, and preview what the fence will look like with the post added
+	# While the second is possible (though computationally intensive), the first does not seem possible,
+	# as the Godot editor - to my knowledge - does not yet expose rotation settings in the Tile Map editor
+	if self in _editor_interface.get_selection().get_selected_nodes(): 			# If Picket is selected
+		var prev_mouse_pos = _mouse_pos											# Save previous cursor location
+		_mouse_pos = local_to_map(get_global_mouse_position()) - Vector2i.ONE 	# Get current cursor location, in TileMapLayer terms
+		if prev_mouse_pos != _mouse_pos: 									  	# If position has changed	
+			_preview_layer.erase_cell(prev_mouse_pos)							# Erase previous preview
+			if not _is_painted(_mouse_pos): 									# If the current position is not already painted (preview useless)
+				_preview_layer.set_cell(_mouse_pos, 1, Vector2i.ZERO, 0)		# Paint a preview
 
 ## Propagate properties over to children
 func _set_properties(redraw: bool = false) -> void:
