@@ -10,9 +10,8 @@ You're very welcome to do so. All you need to know is basic GDScript and program
     - [git](https://git-scm.com/)
     - [Godot Engine](https://godotengine.org/)
     - This plugin
-3. Set up a minimal project to test with
-    > todo: make demo project
-4. Make sure this minimal project works as expected before making modifications
+3. Load the demo
+4. Make sure the demo works as expected before making modifications
 5. When done, submit a pull request and wait for review
 
 ### Some coding principles
