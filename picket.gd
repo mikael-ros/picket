@@ -50,11 +50,19 @@ enum DIRECTION_INTERPRETATION_MODE {
 	#IMPLICIT, 	## Calculate directions based on ray-casting or similar (not implemented)
 }
 
+@export_subgroup("Direction interpretation")
 ## How directional fences are interpreted
 @export_enum("None", "Explicit")
 var direction_interpretation_mode : int = 0:
 	set(new_mode): 
 		direction_interpretation_mode = new_mode
+		redraw()
+
+## Whether directions that look funky (90 degrees, 270 degrees) should be enabled		
+@export
+var enable_unsupported_directions : bool = false:
+	set(new_bool): 
+		enable_unsupported_directions = new_bool
 		redraw()
 		
 # Where in a tile the intersection of two fences will occur
@@ -91,6 +99,13 @@ enum Axis {
 	BOTH_OR_NEITHER ## Post has more than two neighbors, or none at all
 }
 	
+## Taken from Godot docs example
+enum TileTransform {
+	ROTATE_0 = 0,																				## Represents 0 (or n * 360) degree rotation
+	ROTATE_90 = TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_H,	## Represents 90 degree rotation
+	ROTATE_180 = TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V,		## Represents 180 degree rotation
+	ROTATE_270 = TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_V,	## Represents 270 degree rotation
+}
 
 # -----------------------------
 
@@ -283,14 +298,6 @@ func update_post_neighbors(cell: Vector2i) -> void:
 		clear_post_cell(neighbor)					# Clear current drawn posts
 		draw_post_neighbors(neighbor)				# Redraw posts again
 
-## Taken from Godot docs example
-enum TileTransform {
-	ROTATE_0 = 0,
-	ROTATE_90 = TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_H,
-	ROTATE_180 = TileSetAtlasSource.TRANSFORM_FLIP_H | TileSetAtlasSource.TRANSFORM_FLIP_V,
-	ROTATE_270 = TileSetAtlasSource.TRANSFORM_TRANSPOSE | TileSetAtlasSource.TRANSFORM_FLIP_V,
-}
-
 ## Paint neighbors of a certain cell
 func draw_fence_neighbors(cell: Vector2i) -> void:
 	var alternate_tile = get_cell_alternative_tile(cell)
@@ -300,23 +307,30 @@ func draw_fence_neighbors(cell: Vector2i) -> void:
 			if neighbor.y < cell.y: # If neighbor is below
 				pos = above(cell)
 				
-			var rotation = TileTransform.ROTATE_270
+			var rotation = TileTransform.ROTATE_90
 			if direction_interpretation_mode == DIRECTION_INTERPRETATION_MODE.EXPLICIT:
 				match alternate_tile:
+					TileTransform.ROTATE_180: # 180 is the only supported rotation (other than 0, technically)
+						rotation = TileTransform.ROTATE_270
+					# Unsupported angles below
 					TileTransform.ROTATE_90:
-						rotation = TileTransform.ROTATE_0
-					TileTransform.ROTATE_180:
-						rotation = TileTransform.ROTATE_90
+						if enable_unsupported_directions:
+							rotation = TileTransform.ROTATE_180
 					TileTransform.ROTATE_270:
-						rotation = TileTransform.ROTATE_180
+						if enable_unsupported_directions:
+							rotation = TileTransform.ROTATE_0
 			fence_layer_vertical.set_cell(pos, fence_texture_ID, Vector2i.ZERO, rotation)
 		elif neighbor.y == cell.y:	# If neighbor is on horizontal axis
 			if neighbor.x < cell.x: # If neighbor is to the left
 				pos = left_of(cell)
 			
 			var rotation = 0
+			# Apply rotation, if any
 			if direction_interpretation_mode == DIRECTION_INTERPRETATION_MODE.EXPLICIT:
-				rotation = alternate_tile
+				if enable_unsupported_directions: # Apply rotations regardless, if unsupported directions are supported
+					rotation = alternate_tile
+				elif alternate_tile == TileTransform.ROTATE_180: # 180 degrees is supported, though
+					rotation = alternate_tile
 			fence_layer_horizontal.set_cell(pos, fence_texture_ID, Vector2i.ZERO, rotation)
 
 ## Remove neighbors of a certain cell.
