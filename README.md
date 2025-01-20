@@ -61,6 +61,9 @@ Should be centered vertically, and should take up the width of the texture.
 4. In the *"Tile Map"* tab, paint nodes as you normally would, but only use the post to draw
 	![GIF of painting fence]()
 
+### 📂 Using the demo
+Load [demo.tscn](/demo/demo.tscn) into a Godot project where you have installed and enabled ``Picket``.
+
 ### ✨ Advanced features
 #### ⚓ Anchors
 You can adjust the position at which the fences intersect. This shifts the position, and can be useful if you want to have padding. 
