@@ -322,15 +322,15 @@ func _clear_post_cell(cell: Vector2i, should_update_neigbors: bool = false) -> v
 		# Same, for below
 		if not _is_painted(below) or _determine_axis(below) != Axis.VERTICAL: 
 			_post_layer_vertical.erase_cell(cell)
+			
 		# Erase any offset copies	
-		if offset > 0:
-			var left = _left_of(cell)
-			var above = _above(cell)
-			# Same logic as for the previous erasures
-			if not _is_painted(left) or _determine_axis(left) != Axis.HORIZONTAL:
-				_post_layer_horizontal.erase_cell(left)
-			if not _is_painted(above) or _determine_axis(above) != Axis.VERTICAL:
-				_post_layer_vertical.erase_cell(above)
+		var left = _left_of(cell)
+		var above = _above(cell)
+		# Same logic as for the previous erasures
+		if not _is_painted(left) or _determine_axis(left) != Axis.HORIZONTAL:
+			_post_layer_horizontal.erase_cell(left)
+		if not _is_painted(above) or _determine_axis(above) != Axis.VERTICAL:
+			_post_layer_vertical.erase_cell(above)
 	if should_update_neigbors: # If this cell is newly cleared, trigger update for neighbors
 		_update_post_neighbors(cell)
 
