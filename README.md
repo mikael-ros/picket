@@ -63,7 +63,7 @@ Should be centered vertically, and should take up the width of the texture.
 	![Adding tile set textures](assets/previews/add_tileset_textures.png)
 4. In the *"Tile Map"* tab, paint nodes as you normally would
 
-	![Painting fence](assets/previews/painting.webm)
+	![Painting fence](assets/previews/painting.mp4)
 
 ### 📂 Using the demo
 Load [``demo.tscn``](/demo/demo.tscn) into a Godot project where you have installed and enabled **Picket**.
