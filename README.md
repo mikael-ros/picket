@@ -33,6 +33,8 @@ This will be the easiest method, if you don't mind updating manually
 4. In the Godot Editor, click *"Project"* -> *"Project Settings"* -> *"Plugins"* -> Click the ``Enable`` tick next to the **Picket** plugin
 
 ## 🛠️ Usage
+![Picket drawn in Picket](assets/previews/picket_drawn.png)
+
 ### 🖼️ Texture
 > [!NOTE]
 > This plugin has only been developed with 1:1 aspect ratio in mind. Other ratios may work, but are not officially supported
