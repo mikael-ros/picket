@@ -92,7 +92,7 @@ Additionally, you can enable "unsupported" rotation (eg. rotation that is 90 deg
 This is the only supported rotation mode at the moment. Fence is rotated by using the controls in the Tile Map editor. 
 
 > [!NOTE]
-> At the moment, there is no preview for the rotation, as this is difficult to implement.
+> At the moment, there is no preview for rotation, as this is difficult to implement.
 
 ### 🧩 Current limitations and feature suggestions
 Currently, tile shapes are not supported beyond *"Square"*. Non-uniform fences aren't supported yet either, so fences can only be straight.
