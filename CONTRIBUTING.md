@@ -22,3 +22,25 @@ You're very welcome to do so. All you need to know is basic GDScript and program
 
 ### Testing procedure
 At the moment, not rigorous testing or test suite is applied, but make sure the demo works as expected at the very least.
+
+### Writing documentation
+Follow similar guidelines as the Godot docs.
+
+When generating GIFs, I apply the following process:
+1. Record with [peek](https://github.com/phw/peek) or any other software that can record ``.mp4`` files (or other high frame rate / high fidelity formats) such as [Open Broadcaster Software (OBS)](https://obsproject.com/).
+    > note: peek is stopping development, so you should ideally choose something else
+2. Convert video files to ``.gif``. I use the following command, found on [bannerbear](https://www.bannerbear.com/blog/how-to-make-a-gif-from-a-video-using-ffmpeg/):
+    ```sh
+    ffmpeg -i <video_file_name> -filter_complex "[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse" <output_name>.gif
+    ```
+    > [!TIP]
+    > You can adjust where in the video you want the gif sampled, example:
+    > ``-ss 1.0 -t 5`` for a snippet from t=1 to t=6.
+    > Add this right after the ``ffmpeg``, like: ``ffmpeg <time commands> <rest of command>``
+
+    > [!CAUTION]
+    > I barely know how to use ffpmeg, it's essentially dark arts to me. It is very possible the command above does not work as intended for every use case, it's just simply what I happened to find when searching.
+
+> [!NOTE]
+> Why the above process?:
+> I do this to attain high quality, high frame rate gifs.
