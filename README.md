@@ -103,7 +103,7 @@ If you desire certain functionality within this plugin, or encounter a bug, feel
 
 
 ## 💾 Short technical description
-This plugin reads the tile map data, and paints five offset child [**TileMapLayer**](https://docs.godotengine.org/en/stable/classes/class_tilemaplayer.html)s. Two for the fences - one for vertical connections and one for horizontal connections - and three for the posts (vertical, horizontal, and stationary).
+This plugin reads the tile map data, and paints five child [**TileMapLayer**](https://docs.godotengine.org/en/stable/classes/class_tilemaplayer.html)s. Two for the fences - one for vertical connections and one for horizontal connections - and three for the posts (vertical, horizontal, and stationary).
 
 The cursor exists on another temporary layer, which only exists in the editor. While this could just have been a sprite, the idea is to permit future preview implementations.
 
