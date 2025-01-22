@@ -44,8 +44,9 @@ When generating GIFs, I apply the following process:
 > Adding onto the previous tip, you can read the duration of a video using ``ffprobe`` and then use that in conjunction with the parameters to cut off the end of a video. [This StackExchange post outlines a method to do this automatically](https://superuser.com/questions/744823/how-i-could-cut-the-last-7-seconds-of-my-video-with-ffmpeg).
 
 > [!CAUTION]
-> I barely know how to use ffpmeg, it's essentially dark arts to me. It is very possible the command above does not work as intended for every use case, it's just simply what I happened to find when searching.
+> I barely know how to use ffmpeg, it's essentially dark arts to me. It is very possible the command above does not work as intended for every use case, it's just simply what I happened to find when searching.
 
 > [!NOTE]
 > Why the above process?:
+>
 > I do this to attain high quality, high frame rate gifs.
