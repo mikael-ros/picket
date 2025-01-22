@@ -33,16 +33,18 @@ When generating GIFs, I apply the following process:
     ```sh
     ffmpeg -i <video_file_name> -filter_complex "[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse" <output_name>.gif
     ```
-    > [!TIP]
-    > You can adjust where in the video you want the gif sampled, example:
-    > ``-ss 1.0 -t 5`` for a snippet from t=1 to t=6.
-    > Add this right after the ``ffmpeg``, like: ``ffmpeg <time commands> <rest of command>``
+> [!TIP]
+> You can adjust where in the video you want the gif sampled, example:
+>
+> ``-ss 1.0 -t 5`` for a snippet from t=1 to t=6.
+>
+> Add this right after the ``ffmpeg``, like: ``ffmpeg <time commands> <rest of command>``
 
-    > [!TIP]
-    > Adding onto the previous tip, you can read the duration of a video using ``ffprobe`` and then use that in conjunction with the parameters to cut off the end of a video. [This StackExchange post outlines a method to do this automatically](https://superuser.com/questions/744823/how-i-could-cut-the-last-7-seconds-of-my-video-with-ffmpeg).
+> [!TIP]
+> Adding onto the previous tip, you can read the duration of a video using ``ffprobe`` and then use that in conjunction with the parameters to cut off the end of a video. [This StackExchange post outlines a method to do this automatically](https://superuser.com/questions/744823/how-i-could-cut-the-last-7-seconds-of-my-video-with-ffmpeg).
 
-    > [!CAUTION]
-    > I barely know how to use ffpmeg, it's essentially dark arts to me. It is very possible the command above does not work as intended for every use case, it's just simply what I happened to find when searching.
+> [!CAUTION]
+> I barely know how to use ffpmeg, it's essentially dark arts to me. It is very possible the command above does not work as intended for every use case, it's just simply what I happened to find when searching.
 
 > [!NOTE]
 > Why the above process?:
